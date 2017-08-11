@@ -1,0 +1,6 @@
+"AddonInfo"
+{
+	"name"				"Buildmode"
+	"version"			"69"
+	"author_name"			"Kyle"
+}
