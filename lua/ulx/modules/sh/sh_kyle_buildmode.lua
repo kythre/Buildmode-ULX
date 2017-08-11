@@ -2,25 +2,36 @@ _Kyle_Buildmode = _Kyle_Buildmode or {}
 	
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
-	ULib.getSpawnInfo( z )	
-	if _Kyle_Buildmode["restrictweapons"]=="1" then
-		z:StripWeapons()
-		for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
-			z:Give(y)
+	if z:Alive() then
+		ULib.getSpawnInfo( z )	
+		if _Kyle_Buildmode["restrictweapons"]=="1" then
+			z:StripWeapons()
+			for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
+				z:Give(y)
+			end
 		end
 	end
 	z.buildmode = true
 	z:SetNWBool("_Kyle_Buildmode",true)
+	
+	if z:GetNWBool("_kyle_died") then
+		z:SetNWBool("_Kyle_BuildmodeOnSpawn",true)
+	else
+		z:SetNWBool("_Kyle_BuildmodeOnSpawn",false)
+	end
 end
 
 local function _kyle_Buildmode_Disable(z)
 	if z:Alive() then
 		local pos = z:GetPos()
-		if _Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1" then
-			ULib.spawn( z, z:GetNWBool("_kyle_died") )
+		
+		if (_Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1") and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
+			ULib.spawn( z, true ) --Gives the player their weapons they had before entering buildmode
 		end
+		
+		
 		if _Kyle_Buildmode["killonpvp"]=="0" then
-			z:SetPos( pos )
+			z:SetPos( pos ) --Returns the player to where they where when they disabled buildmode
 		end
 	end
 	
