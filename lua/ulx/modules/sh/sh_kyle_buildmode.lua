@@ -7,7 +7,6 @@ local function _kyle_Buildmode_Enable(z)
 		z:StripWeapons()
 		for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
 			z:Give(y)
-			print(y)
 		end
 	end
 	z.buildmode = true
@@ -18,7 +17,7 @@ local function _kyle_Buildmode_Disable(z)
 	if z:Alive() then
 		local pos = z:GetPos()
 		if _Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1" then
-			ULib.spawn( z, false )
+			ULib.spawn( z, z:GetNWBool("_kyle_died") )
 		end
 		if _Kyle_Buildmode["killonpvp"]=="0" then
 			z:SetPos( pos )
@@ -129,8 +128,6 @@ end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function( z )
 	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode") and z:GetNWBool("_kyle_died") then
-		print("a")
-
 		_kyle_Buildmode_Enable(z)
 	end
 	z:SetNWBool("_kyle_died", false)
