@@ -1,6 +1,5 @@
 "AddonInfo"
 {
-	"name"				"Buildmode"
-	"version"			"69"
-	"author_name"			"Kyle"
+	"name"				"ULX Buildmode"
+	"author_name"			"Kythre"
 }
