@@ -2,7 +2,7 @@ _Kyle_Buildmode = _Kyle_Buildmode or {}
 	
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
-	if z:Alive() then
+	if z:Alive()	 then
 		ULib.getSpawnInfo( z )	
 		if _Kyle_Buildmode["restrictweapons"]=="1" then
 			z:StripWeapons()
@@ -13,12 +13,7 @@ local function _kyle_Buildmode_Enable(z)
 	end
 	z.buildmode = true
 	z:SetNWBool("_Kyle_Buildmode",true)
-	
-	if z:GetNWBool("_kyle_died") then
-		z:SetNWBool("_Kyle_BuildmodeOnSpawn",true)
-	else
-		z:SetNWBool("_Kyle_BuildmodeOnSpawn",false)
-	end
+	z:SetNWBool("_Kyle_BuildmodeOnSpawn",z:GetNWBool("_kyle_died"))
 end
 
 local function _kyle_Buildmode_Disable(z)
