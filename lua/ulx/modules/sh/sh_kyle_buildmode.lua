@@ -128,7 +128,9 @@ hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function( y, z )
 end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function( z )
-	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" and z:GetNWBool("_kyle_died") then
+	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode") and z:GetNWBool("_kyle_died") then
+		print("a")
+
 		_kyle_Buildmode_Enable(z)
 	end
 	z:SetNWBool("_kyle_died", false)
@@ -165,7 +167,7 @@ hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)
 end)
 
 hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" then -- and not table.HasValue( _Kyle_Buildmode["buildloadout"], string.Explode(z,"%[[.]+%]", true)[2] )
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
         if y:GetNWBool("_kyle_buildNotify")then
 			y:SetNWBool("_kyle_buildNotify", true)
             y:SendLua("GAMEMODE:AddNotify(\"You cannot pick up weapons while in Build Mode.\",NOTIFY_GENERIC, 5)") 
@@ -173,9 +175,7 @@ hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
                 y:SetNWBool("_kyle_buildNotify", false)
             end)
 	   end
-	   PrintTable(string.Split(tostring(z),"["))
-	   PrintTable(string.Split(tostring(z),"%[[.]+%]", true))
-        return false   
+	   return false   
     end
 end)
 
