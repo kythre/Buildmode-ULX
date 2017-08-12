@@ -32,3 +32,7 @@ When enabled, players NOT in Buildmode will have an outline using a color chosen
 
 ## Current Settings Page
 ![alt text](http://i.imgur.com/L2DAAwd.png "ULX Settings Page")
+
+## Current Halo Look
+![alt text](http://i.imgur.com/ShtCPL7.png "Halos")
+PVPer On Left, Builder on Right
