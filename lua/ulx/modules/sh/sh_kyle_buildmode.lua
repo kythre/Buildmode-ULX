@@ -21,7 +21,7 @@ local function _kyle_Buildmode_Disable(z)
 		local pos = z:GetPos()
 		
 		if (_Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1") and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
-			ULib.spawn( z, true ) --Gives the player their weapons they had before entering buildmode
+			ULib.spawn( z, true ) --Returns to the player their weapons they had before entering buildmode
 		else
 			z:ConCommand("kylebuildmode defaultloadout")
 		end
@@ -98,15 +98,15 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
 	end
 end)
 
+--VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
+--IF USED, EXPECT BUGS AND CRASHES
+
+--[[
 hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
-	--print(y, y:GetNWBool("_Kyle_Buildmode"))
-	--print(z, z:GetNWBool("_kyle_Buildmode"))
-	return true
+	print(y, y:GetNWBool("_Kyle_Buildmode"))
+	print(z, z:GetNWBool("_kyle_Buildmode"))
 	
-	--VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
-	--IF USED, EXPECT BUGS AND CRASHES
-	
-	--[[if (y:IsPlayer() or z:IsPlayer()) and _Kyle_Buildmode["antipropkill"]=="1" then
+	if (y:IsPlayer() or z:IsPlayer()) and _Kyle_Buildmode["antipropkill"]=="1" then
 		
 		if y:IsPlayer() then 
 			z:SetNWBool("Colliding", true)
@@ -130,8 +130,10 @@ hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
 		if (y:GetNWBool("NoCollide") or z:GetNWBool("NoCollide")) then		
 			return false
 		end
-	end ]]
+	end
 end)
+
+]]
 
 hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function( y, z )
 	if _Kyle_Buildmode["allownoclip"]=="1" then
