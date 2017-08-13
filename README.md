@@ -24,6 +24,8 @@ this setting does not interfere with ULX Noclip
 #### "Prevent Propkill In Buildmode"
 When enabled, players in Buildmode will have a slightly more difficult time trying to propkill
 
+Currently, it only stops props from being thrown.
+
 I suggest not using this and instead getting a dedicated anti-propkill plugin as this is not the main feature of this addon
 
 #### "Highlight Builders"
