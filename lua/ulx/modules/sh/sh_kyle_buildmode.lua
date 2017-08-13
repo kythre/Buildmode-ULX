@@ -167,7 +167,7 @@ end)
 
 hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)	
 	if y.buildmode or z:GetAttacker().buildmode then
-		z:SetDamage( 0 )
+		return true
 	end
 end)
 
