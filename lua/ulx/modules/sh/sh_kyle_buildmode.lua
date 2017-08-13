@@ -20,6 +20,10 @@ local function _kyle_Buildmode_Disable(z)
 	if z:Alive() then
 		local pos = z:GetPos()
 		
+		if _Kyle_Buildmode["killonpvp"]=="1" and z:InVehicle() then
+			z:ExitVehicle()
+		end
+		
 		if (_Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1") and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
 			ULib.spawn( z, true ) --Returns the player to spawn with the weapons they had before entering buildmode
 		else
@@ -61,6 +65,7 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	end
 	
 	if v then 
+		--add setting later for render mode
 		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],"," )
 		halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true)
 		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )
