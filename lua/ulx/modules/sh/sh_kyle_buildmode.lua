@@ -21,9 +21,13 @@ local function _kyle_Buildmode_Disable(z)
 		local pos = z:GetPos()
 		
 		if (_Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1") and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
-			ULib.spawn( z, true ) --Returns to the player their weapons they had before entering buildmode
+			ULib.spawn( z, true ) --Returns the player to spawn with the weapons they had before entering buildmode
 		else
-			z:ConCommand("kylebuildmode defaultloadout")
+			ULib.spawn( z, false )
+		end
+		
+		if _Kyle_Buildmode["restrictweapons"]=="1" and z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
+			z:ConCommand("kylebuildmode defaultloadout") --called when buildmode is disabled after spawning with it enabled
 		end
 		
 		if _Kyle_Buildmode["killonpvp"]=="0" then
@@ -31,7 +35,7 @@ local function _kyle_Buildmode_Disable(z)
 		end
 		
 		if 	z:GetNWBool("kylenocliped") then
-			z:ConCommand( "noclip" )
+			z:ConCommand( "noclip" ) --called when the player had noclip while in buildmode
 		end
 	end
 	
@@ -143,7 +147,7 @@ hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function( y, z )
 end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function( z )
-	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode") and z:GetNWBool("_kyle_died") then
+	if (_Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
 	end
 	z:SetNWBool("_kyle_died", false)
