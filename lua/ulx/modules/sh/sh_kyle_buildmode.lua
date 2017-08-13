@@ -26,9 +26,12 @@ local function _kyle_Buildmode_Disable(z)
 			z:ConCommand("kylebuildmode defaultloadout")
 		end
 		
-		
 		if _Kyle_Buildmode["killonpvp"]=="0" then
 			z:SetPos( pos ) --Returns the player to where they where when they disabled buildmode
+		end
+		
+		if 	z:GetNWBool("kylenocliped") then
+			z:ConCommand( "noclip" )
 		end
 	end
 	
@@ -96,9 +99,13 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
 end)
 
 hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
-	print(y, y:GetNWBool("_Kyle_Buildmode"))
-	print(z, z:GetNWBool("_kyle_Buildmode"))
+	--print(y, y:GetNWBool("_Kyle_Buildmode"))
+	--print(z, z:GetNWBool("_kyle_Buildmode"))
 	return true
+	
+	--VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
+	--IF USED, EXPECT BUGS AND CRASHES
+	
 	--[[if (y:IsPlayer() or z:IsPlayer()) and _Kyle_Buildmode["antipropkill"]=="1" then
 		
 		if y:IsPlayer() then 
@@ -127,11 +134,10 @@ hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
 end)
 
 hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function( y, z )
-	if  z == false  then
-		return true		
-	elseif  _Kyle_Buildmode["allownoclip"]=="1" and y.buildmode  then
-		return true 
-	end 
+	if _Kyle_Buildmode["allownoclip"]=="1" then
+		y:SetNWBool("kylenocliped", z)
+		return z == false or y.buildmode
+	end
 end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function( z )
