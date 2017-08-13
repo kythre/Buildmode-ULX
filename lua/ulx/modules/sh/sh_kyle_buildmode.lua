@@ -24,10 +24,12 @@ local function _kyle_Buildmode_Disable(z)
 			z:ExitVehicle()
 		end
 		
-		if (_Kyle_Buildmode["restrictweapons"]=="1" or _Kyle_Buildmode["killonpvp"]=="1") and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
+		if _Kyle_Buildmode["restrictweapons"]=="1" and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
 			ULib.spawn( z, true ) --Returns the player to spawn with the weapons they had before entering buildmode
-		else
-			ULib.spawn( z, false )
+		end
+		
+		if _Kyle_Buildmode["killonpvp"]=="1" then
+			ULib.spawn( z, false)  --Returns the player to spawn
 		end
 		
 		if _Kyle_Buildmode["restrictweapons"]=="1" and z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
