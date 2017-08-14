@@ -4,11 +4,15 @@ _Kyle_Buildmode = {}
 
 util.AddNetworkString( "kylebuildmode_senddata" )
 
-local function Save()
+local function SendData()
 	net.Start( "kylebuildmode_senddata", false )
-		net.WriteTable( _Kyle_Buildmode )
+	net.WriteTable( _Kyle_Buildmode )
 	net.Broadcast()
+end
+
+local function Save()
 	file.Write("kylebuildmode.txt", ULib.makeKeyValues(_Kyle_Buildmode))
+	Send()
 end
 
 xgui.addSVModule( "kylebuildmode_load", function()	
@@ -81,5 +85,7 @@ concommand.Add("kylebuildmode", function( x, y, z )
 			end
 		end
 		Save()
+	else
+		SendData()	--Allows players to get the updated data using a concommand in the event of "a thing"
 	end
 end)
