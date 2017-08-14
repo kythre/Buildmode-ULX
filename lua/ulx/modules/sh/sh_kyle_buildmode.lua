@@ -38,8 +38,8 @@ local function _kyle_Buildmode_Disable(z)
 			z:SetPos( pos ) --Returns the player to where they where when they disabled buildmode
 		end
 		
-		if _Kyle_Buildmode["allownoclip"]=="1" then 
-			gamemode.Call( "PlayerNoClip", z, false )
+		if 	z:GetNWBool("kylenocliped") then
+			z:ConCommand( "noclip" ) --called when the player had noclip while in buildmode
 		end
 	end
 	

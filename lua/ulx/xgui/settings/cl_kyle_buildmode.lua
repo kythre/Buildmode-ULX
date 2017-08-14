@@ -11,7 +11,7 @@ local bc = xlib.makecheckbox{ x=10, y=30, label="Respawn Player on Buildmode exi
 local bd = xlib.makecheckbox{ x=10, y=50, label="Players Spawn with Buildmode", parent=b, repconvar="rep_kylebuildmode_spawnwithbuildmode"}
 local be = xlib.makelabel{ x=300, y=300, w=500, h=15, parent=b, label="Tell Kyle if you want to see any changes to this addon" }
 local bf = xlib.makecheckbox{ x=10, y=70, label="Allow Noclip in Buildmode", parent=b, repconvar="rep_kylebuildmode_allownoclip"}
-local bg = xlib.makecheckbox{ x=10, y=90, label="Prevent Propkill in Buildmode -- DO NOT RELY ON THIS", parent=b, repconvar="rep_kylebuildmode_antipropkill"}
+local bg = xlib.makecheckbox{ x=10, y=90, label="Prevent Propkill in Buildmode", parent=b, repconvar="rep_kylebuildmode_antipropkill", disabled=true}
 local bg = xlib.makecheckbox{ x=10, y=110, label="Highlight Builders", parent=b, repconvar="rep_kylebuildmode_highlightbuilders"}
 local bj = xlib.makecheckbox{ x=150, y=110, label="Highlight PVPers", parent=b, repconvar="rep_kylebuildmode_highlightpvpers"}
 local bh = xlib.makepanel{ x=10, y=170, w=130, h=150, parent=b}
