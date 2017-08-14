@@ -12,7 +12,7 @@ end
 
 local function Save()
 	file.Write("kylebuildmode.txt", ULib.makeKeyValues(_Kyle_Buildmode))
-	Send()
+	SendData()
 end
 
 xgui.addSVModule( "kylebuildmode_load", function()	
