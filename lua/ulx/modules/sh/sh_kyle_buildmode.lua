@@ -1,5 +1,3 @@
-_Kyle_Buildmode = _Kyle_Buildmode or {}
-	
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 	if z:Alive() then
@@ -49,32 +47,29 @@ local function _kyle_Buildmode_Disable(z)
 	z:SendLua("GAMEMODE:AddNotify(\"Buildmode disabled.\",NOTIFY_GENERIC, 5)")
 	z:SetNWBool("_Kyle_Buildmode",false)
 end
-	
-local u = true
-local v = false
+
 hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
-	local w = {}
-	local x = {}
-	local z = {}
-	for y,z in pairs(player.GetAll()) do
-		if _Kyle_Buildmode["highlightbuilders"]=="1" and z:Alive() then
-			if z:GetNWBool("_Kyle_Buildmode") then
-				table.insert(w, z)
-			else
-				table.insert(x, z)
+	if _Kyle_Buildmode["highlightbuilders"] then
+		local w = {}
+		local x = {}
+		local z = {}
+		for y,z in pairs(player.GetAll()) do
+			if _Kyle_Buildmode["highlightbuilders"]=="1" and z:Alive() then
+				if z:GetNWBool("_Kyle_Buildmode") then
+					table.insert(w, z)
+				else
+					table.insert(x, z)
+				end
 			end
 		end
-	end
-	
-	if v then 
+		
 		--add setting later for render mode
 		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],"," )
 		halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true)
 		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )
 		halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true)
-	elseif u then
-		u = false
-		timer.Create( "u", 20, 1, function() v = true end)
+	else	
+		LocalPlayer():ConCommand( "kylebuildmode" ) 
 	end
 end)
 

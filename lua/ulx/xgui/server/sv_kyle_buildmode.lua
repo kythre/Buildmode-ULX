@@ -58,7 +58,6 @@ hook.Add( "ULibReplicatedCvarChanged", "kylebuildmodecvar",  function( v, w, x, 
 end)
 
 concommand.Add("kylebuildmode", function( x, y, z )
-	
 	if z[1]=="defaultloadout" then
 		gamemode.Call("PlayerLoadout", x)
 		return
@@ -80,10 +79,7 @@ concommand.Add("kylebuildmode", function( x, y, z )
 				PrintTable(_Kyle_Buildmode)
 				return
 			end
-		else
-			print("Invalid Command")
 		end
 		Save()
 	end
-
 end)
