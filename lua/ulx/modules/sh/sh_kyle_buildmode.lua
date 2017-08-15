@@ -74,6 +74,9 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	end
 end)
 
+--VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
+--IF USED, EXPECT BUGS AND CRASHES
+--[[
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y,z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWInt("RenderMode", z:GetRenderMode())
@@ -105,10 +108,6 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
 	end
 end)
 
---VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
---IF USED, EXPECT BUGS AND CRASHES
-
---[[
 hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
 	print(y, y:GetNWBool("_Kyle_Buildmode"))
 	print(z, z:GetNWBool("_kyle_Buildmode"))
@@ -139,41 +138,40 @@ hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
 		end
 	end
 end)
-
 ]]
 
-hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function( y, z )
+hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y,z)
 	if _Kyle_Buildmode["allownoclip"]=="1" then
 		y:SetNWBool("kylenocliped", z)
 		return z == false or y.buildmode
 	end
 end )
 
-hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function( z )
+hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 	if (_Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
 	end
 	z:SetNWBool("_kyle_died", false)
 end )
 
-hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function( z )
-	z:SetNWBool("_kyle_died", true)
-end )
-
-hook.Add( "PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
+hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
 	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" then
 		_kyle_Buildmode_Enable(z)
 	end
 end )
 
-hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y, z)
+hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
+	z:SetNWBool("_kyle_died", true)
+end )
+
+hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y,z)
      if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], z ) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 	  return false
     end
 end)
 
-hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y, z)
+hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y,z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], z ) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false

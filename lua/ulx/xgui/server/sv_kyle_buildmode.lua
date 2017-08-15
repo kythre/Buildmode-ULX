@@ -4,16 +4,13 @@ _Kyle_Buildmode = {}
 
 util.AddNetworkString( "kylebuildmode_senddata" )
 
-local function SendData()
+local function SaveAndSend()
+	file.Write("kylebuildmode.txt", ULib.makeKeyValues(_Kyle_Buildmode))
 	net.Start( "kylebuildmode_senddata", false )
 	net.WriteTable( _Kyle_Buildmode )
 	net.Broadcast()
 end
 
-local function Save()
-	file.Write("kylebuildmode.txt", ULib.makeKeyValues(_Kyle_Buildmode))
-	SendData()
-end
 
 xgui.addSVModule( "kylebuildmode_load", function()	
 	xgui.addDataType( "_Kyle_Buildmode", function()  
@@ -23,6 +20,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	end, "kylebuildmodesettings", 0, -10 )
 	
 	if not file.Exists( "kylebuildmode.txt", "DATA" ) then
+		--Make defaults
 		_Kyle_Buildmode["restrictweapons"] = 0
 		_Kyle_Buildmode["allownoclip"] = 0
 		_Kyle_Buildmode["killonpvp"] = 0
@@ -46,18 +44,14 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_highlightbuilders",		"rep_kylebuildmode_highlightbuilders",		_Kyle_Buildmode["highlightbuilders"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightpvpers",		"rep_kylebuildmode_highlightpvpers",		_Kyle_Buildmode["highlightpvpers"],		false,true,"kylebuildmodesettings")
 
-	
-	Save()
+	SaveAndSend()
 end )
 
-hook.Add( "PlayerSpawnedProp", "kylebuildmodepropspawn", function( ply, model, ent )
-end)
-
-hook.Add( "ULibReplicatedCvarChanged", "kylebuildmodecvar",  function( v, w, x, y, z )
+hook.Add( "ULibReplicatedCvarChanged", "kylebuildmodecvar",  function(v,w,x,y,z)
 	local u = string.Split(v, "_")
 	if(u[1]=="kylebuildmode") then
 		_Kyle_Buildmode[u[2]] = z
-		Save()
+		SaveAndSend()
 	end
 end)
 
@@ -84,8 +78,10 @@ concommand.Add("kylebuildmode", function( x, y, z )
 				return
 			end
 		end
-		Save()
+		SaveAndSend()
 	else
-		SendData()	--Allows players to get the updated data using a concommand in the event of "a thing"
+		net.Start( "kylebuildmode_senddata", false )
+		net.WriteTable(_Kyle_Buildmode)
+		net.Send(z)
 	end
 end)
