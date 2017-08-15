@@ -26,7 +26,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 		_Kyle_Buildmode["restrictweapons"] = 0
 		_Kyle_Buildmode["allownoclip"] = 0
 		_Kyle_Buildmode["killonpvp"] = 0
-		_Kyle_Buildmode["antipropkill"] = 1
+		_Kyle_Buildmode["antipropkill"] = 0
 		_Kyle_Buildmode["spawnwithbuildmode"] = 0
 		_Kyle_Buildmode["disablepvppropspawn"] = 0
 		_Kyle_Buildmode["highlightbuilders"] = 0
