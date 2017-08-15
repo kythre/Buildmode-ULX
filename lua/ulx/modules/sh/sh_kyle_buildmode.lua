@@ -54,7 +54,7 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 		local x = {}
 		local z = {}
 		for y,z in pairs(player.GetAll()) do
-			if _Kyle_Buildmode["highlightbuilders"]=="1" and z:Alive() then
+			if z:Alive() then
 				if z:GetNWBool("_Kyle_Buildmode") then
 					table.insert(w, z)
 				else
@@ -65,9 +65,10 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 		
 		--add setting later for render mode
 		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],"," )
-		halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true)
-		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )
-		halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true)
+		if _Kyle_Buildmode["highlightbuilders"]=="1" then halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
+		
+		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )		
+		if _Kyle_Buildmode["highlightpvpers"]=="1" then halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
 	else	
 		LocalPlayer():ConCommand( "kylebuildmode" ) 
 	end
