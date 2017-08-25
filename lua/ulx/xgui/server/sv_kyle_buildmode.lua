@@ -1,7 +1,3 @@
-if GAMEMODE_NAME ~= "sandbox" then
-	return
-end
-
 ULib.ucl.registerAccess( "kylebuildmodesettings", "superadmin", "Allows managing all settings related to Buildmode.", "XGUI" )
 
 _Kyle_Buildmode = {}
