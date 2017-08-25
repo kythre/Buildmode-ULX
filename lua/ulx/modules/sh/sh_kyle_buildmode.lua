@@ -1,8 +1,3 @@
-if GAMEMODE_NAME ~= "sandbox" then
-	return
-end
-
-
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 	if z:Alive() then
