@@ -1,3 +1,7 @@
+if GAMEMODE_NAME ~= "sandbox" then
+	return
+end
+
 _Kyle_Buildmode = _Kyle_Buildmode or {}
 xgui.prepareDataType( "_Kyle_Buildmode" )
 
