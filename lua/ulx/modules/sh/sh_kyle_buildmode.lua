@@ -178,10 +178,8 @@ hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y,z)
     end
 end)
 
-hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)	
-	if y.buildmode or z:GetAttacker().buildmode then
-		return true
-	end
+hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)
+	return  y.buildmode or z:GetAttacker().buildmode
 end)
 
 hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
