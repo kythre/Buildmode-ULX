@@ -9,9 +9,10 @@ local bbb = xlib.makebutton{x=125, y=140, w=25, h=25,  parent=bb, label="+", dis
 local bbc = xlib.maketextbox{x=0, y=140, w=125, h=25, parent=bb}
 local bc = xlib.makecheckbox{ x=10, y=30, label="Respawn Player on Buildmode exit", parent=b, repconvar="rep_kylebuildmode_killonpvp"}
 local bd = xlib.makecheckbox{ x=10, y=50, label="Players Spawn with Buildmode", parent=b, repconvar="rep_kylebuildmode_spawnwithbuildmode"}
-local be = xlib.makelabel{ x=300, y=300, w=500, h=15, parent=b, label="Tell Kyle if you want to see any changes to this addon" }
+local be = xlib.makelabel{ x=302, y=285, w=500, h=15, parent=b, label="For information, issues, and requests click here:" }
+local bea = xlib.makebutton{x=300, y=300, w=240, h=15,  parent=b, label="https://github.com/kythre/Buildmode-ULX" }
 local bf = xlib.makecheckbox{ x=10, y=70, label="Allow Noclip in Buildmode", parent=b, repconvar="rep_kylebuildmode_allownoclip"}
-local bg = xlib.makecheckbox{ x=10, y=90, label="Prevent Propkill in Buildmode", parent=b, repconvar="rep_kylebuildmode_antipropkill", disabled=true}
+local bg = xlib.makecheckbox{ x=10, y=90, label="Prevent Propkill in Buildmode", parent=b, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
 local bg = xlib.makecheckbox{ x=10, y=110, label="Highlight Builders", parent=b, repconvar="rep_kylebuildmode_highlightbuilders"}
 local bj = xlib.makecheckbox{ x=150, y=110, label="Highlight PVPers", parent=b, repconvar="rep_kylebuildmode_highlightpvpers"}
 local bh = xlib.makepanel{ x=10, y=170, w=130, h=150, parent=b}
@@ -21,6 +22,7 @@ local bhc = xlib.makelabel{ x=10, y=150, w=500, h=15, parent=b}
 local bi = xlib.makepanel{ x=150, y=170, w=130, h=150, parent=b}
 local bia = xlib.makelabel{ x=1, y=1, w=500, h=15, parent=bi, label="PVPer Halo Color" }
 local bib = xlib.makecolorpicker{ x=1, y=15, parent=bi }
+
 bba:AddColumn( "Build Loadout" )
 
 bba.OnRowSelected = function(z)
@@ -59,6 +61,11 @@ bbc.OnChange = function()
 		bbb:SetDisabled(true)
 	end
 end
+
+bea.DoClick = function()
+	gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/issues")
+end
+
 
 function bhb:OnChange( z )
 	z = {z["r"],z["g"],z["b"]}
