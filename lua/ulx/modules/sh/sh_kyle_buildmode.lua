@@ -74,51 +74,59 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	end
 end)
 
---VERY EXPERIMENTAL ANTI-PROPMINGE CODE BELOW
---IF USED, EXPECT BUGS AND CRASHES
---[[
-hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y,z)
-	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
-		z:SetNWInt("RenderMode", z:GetRenderMode())
-		z:SetNWInt("Alpha", z:GetColor()["a"])
-		z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200 ) )
-		z:SetRenderMode(1)
-		z:SetCustomCollisionCheck(true)
-		z:SetNWBool("NoCollide", true)
-	end
-end)
 
-local function UnNoclip(z)
+local function NoCollide(z)
+	--Store the old attributes (to be recalled later)
+	z:SetNWInt("RenderMode", z:GetRenderMode())
+	z:SetNWInt("Alpha", z:GetColor()["a"])			
+
+	--Set the new attributes
+	z:SetRenderMode(1)
+	z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200 ) )
+	
+	--Set customcollisioncheck so we can use the shouldcollide hook
+	z:SetCustomCollisionCheck(true)
+	z:SetNWBool("NoCollide", true)
+end
+
+
+local function TryUnNoclip(z)
+	--"Freeze" the prop
+	z:GetPhysicsObject():EnableMotion(false)
+	
+	--Reset the colliding bool
 	z:SetNWBool("Colliding", false)
-	timer.Simple( 0.1, function() 
+	
+	--Wait 0.1 seconds so the hook shouldcollide can reset the colliding bool if need be
+	timer.Simple(0.1, function() 
+	
+		--If we are not colliding we can UnNoclip
 		if not z:GetNWBool("Colliding") and z:IsValid() then
-			z:SetNWBool("NoCollide", false)
+		
+			--Recall the old attributes
 			z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha") ) )
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
+			
+			z:SetNWBool("NoCollide", false)
+			z:SetCustomCollisionCheck(true)
+			z:GetPhysicsObject():EnableMotion(true)
+		
+		--else, try again		
 		elseif z:IsValid() then
-			UnNoclip(z)
+			TryUnNoclip(z)
 		end
+		
 	end )
 end
 
-hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
-	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
-		z:SetPos(z:GetPos())
-		UnNoclip(z)
-	end
-end)
 
 hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
-	print(y, y:GetNWBool("_Kyle_Buildmode"))
-	print(z, z:GetNWBool("_kyle_Buildmode"))
-	
 	if (y:IsPlayer() or z:IsPlayer()) and _Kyle_Buildmode["antipropkill"]=="1" then
 		
 		if y:IsPlayer() then 
 			z:SetNWBool("Colliding", true)
 			if z:IsVehicle() then
-							print("a")
-
+				print("a")
 				if y.buildmode  or z:GetDriver().buildmode  then
 					return false
 				end
@@ -133,12 +141,58 @@ hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
 			end
 		end
 		
-		if (y:GetNWBool("NoCollide") or z:GetNWBool("NoCollide")) then		
-			return false
-		end
+		return not (y:GetNWBool("NoCollide") or z:GetNWBool("NoCollide"))
+		
 	end
 end)
+
+hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y,z)
+	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
+		NoCollide(z)
+	end
+end)
+
+hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
+	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
+		TryUnNoclip(z)
+	end
+end)
+
+--[[
+
+hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y,z)
+	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
+		z:SetNWInt("RenderMode", z:GetRenderMode())
+		z:SetNWInt("Alpha", z:GetColor()["a"])
+		z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200 ) )
+		z:SetRenderMode(1)
+		z:SetCustomCollisionCheck(true)
+		z:SetNWBool("NoCollide", true)
+	end
+end)
+
+hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
+	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
+		z:SetPos(z:GetPos())
+		z:GetPhysicsObject():EnableMotion(false)
+ 
+		UnNoclip(z)
+	end
+end)
+
 ]]
+
+
+
+
+
+
+
+
+
+
+
+
 
 hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y,z)
 	if _Kyle_Buildmode["allownoclip"]=="1" then
