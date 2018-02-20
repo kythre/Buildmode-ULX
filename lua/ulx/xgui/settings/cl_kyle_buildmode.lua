@@ -63,7 +63,7 @@ bbc.OnChange = function()
 end
 
 bea.DoClick = function()
-	gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/issues")
+	gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/")
 end
 
 
