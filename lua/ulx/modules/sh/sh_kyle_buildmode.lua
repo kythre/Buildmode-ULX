@@ -74,75 +74,48 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	end
 end)
 
-
 local function NoCollide(z)
 	--Store the old attributes (to be recalled later)
 	z:SetNWInt("RenderMode", z:GetRenderMode())
-	z:SetNWInt("Alpha", z:GetColor()["a"])			
-
+	z:SetNWInt("Alpha", z:GetColor()["a"])
+	z:SetNWInt("CollisionGroup", z:GetCollisionGroup())			
+	
 	--Set the new attributes
+	z:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 	z:SetRenderMode(1)
 	z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200 ) )
-	
-	--Set customcollisioncheck so we can use the shouldcollide hook
 	z:SetCustomCollisionCheck(true)
-	z:SetNWBool("NoCollide", true)
 end
 
-
-local function TryUnNoclip(z)
-	--"Freeze" the prop
-	z:GetPhysicsObject():EnableMotion(false)
-	
+local function TryUnNoCollide(z)	
 	--Reset the colliding bool
 	z:SetNWBool("Colliding", false)
 	
 	--Wait 0.1 seconds so the hook shouldcollide can reset the colliding bool if need be
 	timer.Simple(0.1, function() 
-	
 		--If we are not colliding we can UnNoclip
-		if not z:GetNWBool("Colliding") and z:IsValid() then
+		if z:IsValid() and not z:GetNWBool("Colliding") and z:GetVelocity():Length() < 1 then
 		
 			--Recall the old attributes
 			z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha") ) )
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
-			
-			z:SetNWBool("NoCollide", false)
-			z:SetCustomCollisionCheck(true)
-			z:GetPhysicsObject():EnableMotion(true)
+			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
+			z:SetCustomCollisionCheck(false)
 		
 		--else, try again		
 		elseif z:IsValid() then
-			TryUnNoclip(z)
+			TryUnNoCollide(z)
 		end
-		
 	end )
 end
 
-
 hook.Add("ShouldCollide", "Kylebuildmodetrycollide", function(y, z)
-	if (y:IsPlayer() or z:IsPlayer()) and _Kyle_Buildmode["antipropkill"]=="1" then
-		
-		if y:IsPlayer() then 
-			z:SetNWBool("Colliding", true)
-			if z:IsVehicle() then
-				print("a")
-				if y.buildmode  or z:GetDriver().buildmode  then
-					return false
-				end
-			end
+	if _Kyle_Buildmode["antipropkill"]=="1"  then
+		if z:IsPlayer() then
+			y:SetNWBool("Colliding", true)	
 		else
-			y:SetNWBool("Colliding", true)
-			if y:IsVehicle() then
-				print("a")
-				if z.buildmode  then
-					return false
-				end
-			end
+			z:SetNWBool("Colliding", true)
 		end
-		
-		return not (y:GetNWBool("NoCollide") or z:GetNWBool("NoCollide"))
-		
 	end
 end)
 
@@ -154,7 +127,10 @@ end)
 
 hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
-		TryUnNoclip(z)
+		--Kill the props momentum so it can not be thrown
+		z:SetPos(z:GetPos())
+		
+		TryUnNoCollide(z)
 	end
 end)
 
@@ -181,18 +157,6 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
 end)
 
 ]]
-
-
-
-
-
-
-
-
-
-
-
-
 
 hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y,z)
 	if _Kyle_Buildmode["allownoclip"]=="1" then
