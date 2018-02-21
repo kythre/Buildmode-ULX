@@ -100,24 +100,22 @@ local function NoCollide(z)
 	TryUnNoCollide(z)
 end
 
---Don't try to load these functions untilt the gamemode is loaded
-if GAMEMODE then  
-	function GAMEMODE:PlayerSpawnedProp(x, y, z)
-		if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-			NoCollide(z)
-		end
-	end
 
-	function GAMEMODE:PlayerEnteredVehicle(y, z)
-		if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-			NoCollide(z)
-		end
+hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
+	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
+		NoCollide(z)
 	end
+end)
 
-	function GAMEMODE:PlayerLeaveVehicle(y, z)
-		TryUnNoCollide(z)
+hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
+	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
+		NoCollide(z)
 	end
-end
+end)
+
+hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
+	TryUnNoCollide(z)
+end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
