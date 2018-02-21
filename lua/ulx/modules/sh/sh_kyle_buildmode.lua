@@ -48,32 +48,6 @@ local function _kyle_Buildmode_Disable(z)
 	z:SetNWBool("_Kyle_Buildmode",false)
 end
 
-hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
-	if _Kyle_Buildmode["highlightbuilders"] then
-		local w = {}
-		local x = {}
-		local z = {}
-		for y,z in pairs(player.GetAll()) do
-			if z:Alive() then
-				if z:GetNWBool("_Kyle_Buildmode") then
-					table.insert(w, z)
-				else
-					table.insert(x, z)
-				end
-			end
-		end
-		
-		--add setting later for render mode
-		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],",")
-		if _Kyle_Buildmode["highlightbuilders"]=="1" then halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
-		
-		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],",")		
-		if _Kyle_Buildmode["highlightpvpers"]=="1" then halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
-	else	
-		LocalPlayer():ConCommand("kylebuildmode") 
-	end
-end)
-
 local function TryUnNoCollide(z)	
 	timer.Simple(0.1, function() 
 		--Exit if the prop stops existing
@@ -141,7 +115,7 @@ local function TryUnNoCollideVehicle(z)
 		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
 		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
 			--Recall the old attributes
-			z:SetColor(Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
+			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
 			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
 			z:SetNWInt("_kyle_nocollide", false)
@@ -222,14 +196,14 @@ hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
 	z:SetNWBool("_kyle_died", true)
 end )
 
-hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y,z)
+hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y, z)
      if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 	  return false
     end
 end)
 
-hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y,z)
+hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
@@ -253,14 +227,51 @@ hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
     end
 end)
 
+hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
+	if _Kyle_Buildmode["highlightbuilders"] then
+		local w = {}
+		local x = {}
+		local z = {}
+		for y,z in pairs(player.GetAll()) do
+			if z:Alive() then
+				if z:GetNWBool("_Kyle_Buildmode") then
+					table.insert(w, z)
+				else
+					table.insert(x, z)
+				end
+			end
+		end
+		
+		--add setting later for render mode
+		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],",")
+		if _Kyle_Buildmode["highlightbuilders"]=="1" then halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
+		
+		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],",")		
+		if _Kyle_Buildmode["highlightpvpers"]=="1" then halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
+	else	
+		LocalPlayer():ConCommand("kylebuildmode") 
+	end
+end)
+
 local CATEGORY_NAME = "_Kyle_1"
 local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply, target_plys, should_revoke )
     local affected_plys = {}
 	for y,z in pairs(target_plys) do
         if not z.buildmode and not should_revoke then
-			_kyle_Buildmode_Enable(z)
+			if _Kyle_Buildmode["builddelay"]!="0" then
+				z:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
+				timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() _kyle_Buildmode_Enable(z) end)
+			else
+				_kyle_Buildmode_Enable(z)
+			end
         elseif z.buildmode and should_revoke then
-            _kyle_Buildmode_Disable(z)
+			if _Kyle_Buildmode["pvpdelay"]!="0" then
+				z:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..tonumber(_Kyle_Buildmode["pvpdelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
+					timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()	_kyle_Buildmode_Disable(z)
+				end)
+			else
+				_kyle_Buildmode_Disable(z)
+			end
         end
         table.insert(affected_plys, z)
 	end
