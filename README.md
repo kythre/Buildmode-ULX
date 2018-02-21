@@ -49,7 +49,7 @@ Delays the ablity to enable Buildmode for this many seconds
 Delays the ablity to disable Buildmode for this many seconds
 
 ## Current Settings Page
-![alt text](https://i.imgur.com/jba0lh8.png "ULX Settings Page")
+![alt text](https://i.imgur.com/yuyUPFS.png "ULX Settings Page")
 
 ## Current (Default) Halo Look
 ![alt text](http://i.imgur.com/ShtCPL7.png "Halos")
