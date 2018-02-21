@@ -229,18 +229,25 @@ local CATEGORY_NAME = "_Kyle_1"
 local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply, target_plys, should_revoke )
     local affected_plys = {}
 	for y,z in pairs(target_plys) do
-        if not z.buildmode and not should_revoke then
+        if not z.buildmode and not should_revoke and not z:GetNWBool("kylependingbuildchange") then
 			if _Kyle_Buildmode["builddelay"]!="0" then
 				z:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
-				timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() _kyle_Buildmode_Enable(z) end)
+				z:SetNWBool("kylependingbuildchange", true)
+				timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() 
+						_kyle_Buildmode_Enable(z) 
+						z:SetNWBool("kylependingbuildchange", false)
+					end)
 			else
 				_kyle_Buildmode_Enable(z)
 			end
-        elseif z.buildmode and should_revoke then
+        elseif z.buildmode and should_revoke and not z:GetNWBool("kylependingbuildchange") then
 			if _Kyle_Buildmode["pvpdelay"]!="0" then
 				z:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..tonumber(_Kyle_Buildmode["pvpdelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
-					timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()	_kyle_Buildmode_Disable(z)
-				end)
+					z:SetNWBool("kylependingbuildchange", true)
+					timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()
+					_kyle_Buildmode_Disable(z)
+					z:SetNWBool("kylependingbuildchange", false)
+						end)
 			else
 				_kyle_Buildmode_Disable(z)
 			end
