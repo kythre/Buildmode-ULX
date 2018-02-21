@@ -182,11 +182,11 @@ hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y, z)
     end
 end)
 
-hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)
+hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
 	return  y.buildmode or z:GetAttacker().buildmode
 end)
 
-hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
+hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
         if y:GetNWBool("_kyle_buildNotify")then
 			y:SetNWBool("_kyle_buildNotify", true)
