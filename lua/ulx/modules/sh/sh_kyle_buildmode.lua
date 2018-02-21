@@ -60,7 +60,7 @@ local function _kyle_Buildmode_Enable(z)
 		end
 		
 		if z:InVehicle() then
-			NoCollide(z:GetVehicle(), true)
+			NoCollide(z:GetVehicle())
 		end
 	end
 	z.buildmode = true
@@ -95,6 +95,10 @@ local function _kyle_Buildmode_Disable(z)
 		if 	z:GetNWBool("kylenocliped") then
 			z:ConCommand( "noclip" ) --called when the player had noclip while in buildmode
 		end
+		
+		if z:InVehicle() then
+			TryUnNoCollide(z:GetVehicle())
+		end		
 	end
 	
 	z.buildmode = false
