@@ -23,10 +23,15 @@ this setting does not interfere with ULX Noclip
 
 #### "Prevent Propkill In Buildmode"
 When enabled, players in Buildmode will have a slightly more difficult time trying to propkill
+
 Builders can not throw props
+
 Props are noclipped when Builders pick them up with a physgun
+
 Props are noclipped when Builders spawn them
+
 Props that are noclipped do not collide with players, however they will collide with other props
+
 Props are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inide the prop
 
 #### "Highlight Builders"
