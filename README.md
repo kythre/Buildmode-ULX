@@ -32,7 +32,7 @@ Props are noclipped when Builders spawn them
 
 Props that are noclipped do not collide with players, however they will collide with other props
 
-Props are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inide the prop
+Props are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inside the prop (so Builders shouldn't be able to prop-trap players)
 
 #### "Highlight Builders"
 When enabled, players in Buildmode will have an outline using a color chosen by and admin
