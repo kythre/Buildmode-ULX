@@ -1,3 +1,53 @@
+local function TryUnNoCollide(z)	
+	timer.Simple(0.1, function() 
+		--Exit if the prop stops existing
+		if not z:IsValid() then return end
+		if not z:GetNWBool("_kyle_nocollide") then return end
+		
+		--Check to see if there is a player inside the prop
+		local a,b = z:GetCollisionBounds()
+		local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
+		local d = false
+		
+		for aa,ab in pairs(c) do
+			if ab:IsPlayer() or ab:IsVehicle() and ab != z then
+				d = true
+			end
+		end		
+
+		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
+		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
+			--Recall the old attributes
+			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
+			z:SetRenderMode(z:GetNWInt("RenderMode")) 
+			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
+			z:SetNWInt("_kyle_nocollide", false)
+		else
+			TryUnNoCollide(z)
+		end
+	end )
+end
+
+local function NoCollide(z)
+	--Exit if we are already un nocollided
+	if z:GetNWBool("_kyle_nocollide") then return end
+
+	--Store the old attributes (to be recalled later)
+	z:SetNWInt("RenderMode", z:GetRenderMode())
+	z:SetNWInt("Alpha", z:GetColor()["a"])
+	z:SetNWInt("CollisionGroup", z:GetCollisionGroup())			
+	
+	--Set the new attributes
+	z:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	z:SetRenderMode(1)
+	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
+	z:SetNWInt("_kyle_nocollide", true)
+	
+	if z:IsVehicle() and z:GetDriver().buildmode then return end
+	--Try to un nocollide asap
+	TryUnNoCollide(z)
+end
+
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 	if z:Alive() then
@@ -7,6 +57,10 @@ local function _kyle_Buildmode_Enable(z)
 			for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
 				z:Give(y)
 			end
+		end
+		
+		if z:InVehicle() then
+			NoCollide(z:GetVehicle(), true)
 		end
 	end
 	z.buildmode = true
@@ -48,59 +102,6 @@ local function _kyle_Buildmode_Disable(z)
 	z:SetNWBool("_Kyle_Buildmode",false)
 end
 
-local function TryUnNoCollide(z)	
-	timer.Simple(0.1, function() 
-		--Exit if the prop stops existing
-		if not z:IsValid() then return end
-		if not z:GetNWBool("_kyle_nocollide") then return end
-		
-		--Check to see if there is a player inside the prop
-		local a,b = z:GetCollisionBounds()
-		local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
-		local d = false
-		
-		for aa,ab in pairs(c) do
-			if ab:IsPlayer() or ab:IsVehicle() and ab != z then
-				d = true
-			end
-		end		
-
-		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
-		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
-			--Recall the old attributes
-			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
-			z:SetRenderMode(z:GetNWInt("RenderMode")) 
-			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
-			z:SetNWInt("_kyle_nocollide", false)
-		else
-			TryUnNoCollide(z)
-		end
-	end )
-end
-
-local function NoCollide(y, z)
-	z = z or false
-
-	--Exit if we are already un nocollided
-	if y:GetNWBool("_kyle_nocollide") then return end
-
-	--Store the old attributes (to be recalled later)
-	y:SetNWInt("RenderMode", y:GetRenderMode())
-	y:SetNWInt("Alpha", y:GetColor()["a"])
-	y:SetNWInt("CollisionGroup", y:GetCollisionGroup())			
-	
-	--Set the new attributes
-	y:SetCollisionGroup(COLLISION_GROUP_WEAPON)
-	y:SetRenderMode(1)
-	y:SetColor(Color(y:GetColor()["r"], y:GetColor()["g"], y:GetColor()["b"], 200))
-	y:SetNWInt("_kyle_nocollide", true)
-	
-	if z then return end
-	
-	--Try to un nocollide asap
-	TryUnNoCollide(y)
-end
-
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		NoCollide(z)
@@ -115,7 +116,7 @@ end)
 
 hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		NoCollide(z, true)
+		NoCollide(z)
 	end
 end)
 
