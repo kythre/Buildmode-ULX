@@ -34,6 +34,10 @@ Props that are noclipped do not collide with players, however they will collide 
 
 Props are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inside the prop (so Builders shouldn't be able to prop-trap players)
 
+Vehicles are noclipped when a Builder enters them
+
+Vehicles are then un-noclipped when a Builder exits the vechile, it stops moving, and there is no other players or vehicles inside it
+
 #### "Highlight Builders"
 When enabled, players in Buildmode will have an outline using a color chosen by and admin
 
