@@ -40,6 +40,12 @@ When enabled, players in Buildmode will have an outline using a color chosen by 
 #### "Highlight PVPers"
 When enabled, players NOT in Buildmode will have an outline using a color chosen by and admin
 
+### "Buildmode Delay"
+Delays the ablity to enable Buildmode for this many seconds
+
+### "PVP Delay"
+Delays the ablity to disable Buildmode for this many seconds
+
 ## Current Settings Page
 ![alt text](http://i.imgur.com/L2DAAwd.png "ULX Settings Page")
 
