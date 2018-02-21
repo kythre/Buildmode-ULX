@@ -32,7 +32,7 @@ Props and Vehicles are noclipped when Builders spawn them
 
 Props and Vehicles that are noclipped do not collide with players, however they will collide with other props
 
-Vehicles are noclipped when a Builder enters them
+Vehicles are noclipped when a Builder enters them or when the driver enables Buildmode
 
 Props and Vehicles are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inside the prop (so Builders shouldn't be able to prop-trap players)
 
