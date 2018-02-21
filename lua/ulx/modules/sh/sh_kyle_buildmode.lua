@@ -126,7 +126,6 @@ local function TryUnNoCollideVehicle(z)
 		--Exit if the prop stops existing
 		if not z:IsValid() then return end
 		if not z:GetNWBool("_kyle_nocollide") then return end
-
 		
 		--Check to see if there is a player inside the prop
 		local a,b = z:GetCollisionBounds()
