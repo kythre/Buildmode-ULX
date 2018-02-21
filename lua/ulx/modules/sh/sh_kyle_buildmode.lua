@@ -11,7 +11,7 @@ local function _kyle_Buildmode_Enable(z)
 	end
 	z.buildmode = true
 	z:SetNWBool("_Kyle_Buildmode",true)
-	z:SetNWBool("_Kyle_BuildmodeOnSpawn",z:GetNWBool("_kyle_died"))
+	z:SetNWBool("_Kyle_BuildmodeOnSpawn", z:GetNWBool("_kyle_died"))
 end
 
 local function _kyle_Buildmode_Disable(z)
@@ -64,25 +64,24 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 		end
 		
 		--add setting later for render mode
-		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],"," )
+		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],",")
 		if _Kyle_Buildmode["highlightbuilders"]=="1" then halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
 		
-		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )		
+		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],",")		
 		if _Kyle_Buildmode["highlightpvpers"]=="1" then halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
 	else	
-		LocalPlayer():ConCommand( "kylebuildmode" ) 
+		LocalPlayer():ConCommand("kylebuildmode") 
 	end
 end)
 
 local function TryUnNoCollide(z)	
-	--Wait 0.1 seconds to prevent a stack overflow lmao
 	timer.Simple(0.1, function() 
 		--Exit if the prop stops existing
 		if not z:IsValid() then return end
 
 		--Check to see if there is a player inside the prop
 		local a,b = z:GetCollisionBounds()
-		local c = ents.FindInBox( z:LocalToWorld(boxMins), z:LocalToWorld(boxMaxs))
+		local c = ents.FindInBox( z:LocalToWorld(a), z:LocalToWorld(b))
 		local d = false
 		
 		for aa,ab in pairs(c) do
@@ -94,11 +93,10 @@ local function TryUnNoCollide(z)
 		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
 		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
 			--Recall the old attributes
-			z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha") ) )
+			z:SetColor(Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
 			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
-		
-		--else, try again		
+			z:SetNWInt("_kyle_nocollide", false)
 		else
 			TryUnNoCollide(z)
 		end
@@ -106,6 +104,8 @@ local function TryUnNoCollide(z)
 end
 
 local function NoCollide(z)
+	if z:GetNWBool("_kyle_nocollide") then return end
+
 	--Store the old attributes (to be recalled later)
 	z:SetNWInt("RenderMode", z:GetRenderMode())
 	z:SetNWInt("Alpha", z:GetColor()["a"])
@@ -114,37 +114,37 @@ local function NoCollide(z)
 	--Set the new attributes
 	z:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 	z:SetRenderMode(1)
-	z:SetColor( Color( z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200 ) )
+	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
+	z:SetNWInt("_kyle_nocollide", true)
 	
+	--Try to un nocollide asap
 	TryUnNoCollide(z)
 end
 
-function GAMEMODE:PlayerSpawnedProp( x, y, z )
+function GAMEMODE:PlayerSpawnedProp(x, y, z)
 	z:AddCallback("PhysicsCollide", CheckCollision)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		NoCollide(z)
     end
 end
 
-hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y,z)
+hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
 		NoCollide(z)
 	end
 end)
 
-hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y,z)
+hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
-		--Kill the props momentum so it can not be thrown
+		--Kill the prop's momentum so it can not be thrown
 		z:SetPos(z:GetPos())
 		
 		z:SetNWBool("Physgunned", false)
-
-		TryUnNoCollide(z)
 	end
 end)
 
-hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y,z)
+hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y, z)
 	if _Kyle_Buildmode["allownoclip"]=="1" then
 		y:SetNWBool("kylenocliped", z)
 		return z == false or y.buildmode
@@ -169,14 +169,14 @@ hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
 end )
 
 hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y,z)
-     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], z ) then
+     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 	  return false
     end
 end)
 
 hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y,z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], z ) then
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
         y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
     end
@@ -187,7 +187,7 @@ hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y,z)
 end)
 
 hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y,z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue( _Kyle_Buildmode["buildloadout"], string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
         if y:GetNWBool("_kyle_buildNotify")then
 			y:SetNWBool("_kyle_buildNotify", true)
             y:SendLua("GAMEMODE:AddNotify(\"You cannot pick up weapons while in Build Mode.\",NOTIFY_GENERIC, 5)") 
@@ -208,17 +208,17 @@ local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply
         elseif z.buildmode and should_revoke then
             _kyle_Buildmode_Disable(z)
         end
-        table.insert( affected_plys, z )
+        table.insert(affected_plys, z)
 	end
 
 	if should_revoke then
-		ulx.fancyLogAdmin( calling_ply, "#A revoked Buildmode from #T", affected_plys )
+		ulx.fancyLogAdmin(calling_ply, "#A revoked Buildmode from #T", affected_plys)
 	else
-		ulx.fancyLogAdmin( calling_ply, "#A granted Buildmode upon #T", affected_plys )
+		ulx.fancyLogAdmin(calling_ply, "#A granted Buildmode upon #T", affected_plys)
 	end
 end, "!build" )
-buildmode:addParam{ type=ULib.cmds.PlayersArg, ULib.cmds.optional}
-buildmode:defaultAccess( ULib.ACCESS_ALL )
-buildmode:addParam{ type=ULib.cmds.BoolArg, invisible=true }
-buildmode:help( "Grants Buildmode to target(s)." )
-buildmode:setOpposite( "ulx pvp", {_, _, true}, "!pvp" )
+buildmode:addParam{type=ULib.cmds.PlayersArg, ULib.cmds.optional}
+buildmode:defaultAccess(ULib.ACCESS_ALL)
+buildmode:addParam{type=ULib.cmds.BoolArg, invisible=true}
+buildmode:help("Grants Buildmode to target(s).")
+buildmode:setOpposite("ulx pvp", {_, _, true}, "!pvp")
