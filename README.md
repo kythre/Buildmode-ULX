@@ -23,10 +23,11 @@ this setting does not interfere with ULX Noclip
 
 #### "Prevent Propkill In Buildmode"
 When enabled, players in Buildmode will have a slightly more difficult time trying to propkill
-
-Currently, it only stops props from being thrown.
-
-I suggest not using this and instead getting a dedicated anti-propkill plugin as this is not the main feature of this addon
+Builders can not throw props
+Props are noclipped when Builders pick them up with a physgun
+Props are noclipped when Builders spawn them
+Props that are noclipped do not collide with players, however they will collide with other props
+Props are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inide the prop
 
 #### "Highlight Builders"
 When enabled, players in Buildmode will have an outline using a color chosen by and admin
@@ -37,6 +38,6 @@ When enabled, players NOT in Buildmode will have an outline using a color chosen
 ## Current Settings Page
 ![alt text](http://i.imgur.com/L2DAAwd.png "ULX Settings Page")
 
-## Current Halo Look
+## Current (Default) Halo Look
 ![alt text](http://i.imgur.com/ShtCPL7.png "Halos")
 PVPer On Left, Builder on Right
