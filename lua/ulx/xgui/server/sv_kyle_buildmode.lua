@@ -11,7 +11,6 @@ local function SaveAndSend()
 	net.Broadcast()
 end
 
-
 xgui.addSVModule( "kylebuildmode_load", function()	
 	xgui.addDataType( "_Kyle_Buildmode", function()  
 	net.Start( "kylebuildmode_senddata", false )
@@ -32,6 +31,8 @@ xgui.addSVModule( "kylebuildmode_load", function()
 		_Kyle_Buildmode["buildloadout"] = {"weapon_physgun", "gmod_tool", "gmod_camera"}
 		_Kyle_Buildmode["highlightbuilderscolor"]= "0,128,255"
 		_Kyle_Buildmode["highlightpvperscolor"]= "255,0,0"
+		_Kyle_Buildmode["builddelay"] = 0
+		_Kyle_Buildmode["pvpdelay"] = 0
 	else 
 		_Kyle_Buildmode = ULib.parseKeyValues( file.Read( "kylebuildmode.txt" ) )
 	end
