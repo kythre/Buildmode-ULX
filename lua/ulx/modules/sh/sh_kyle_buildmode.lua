@@ -140,6 +140,8 @@ local function NoCollideVehicle(z)
 	z:SetNWInt("_kyle_nocollide", true)
 end
 
+if GAMEMODE then  
+
 function GAMEMODE:PlayerSpawnedProp(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		NoCollide(z)
@@ -154,6 +156,8 @@ end
 
 function GAMEMODE:PlayerLeaveVehicle(y, z)
 	TryUnNoCollideVehicle(z)
+end
+
 end
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
