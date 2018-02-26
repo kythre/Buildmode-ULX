@@ -63,8 +63,8 @@ concommand.Add("kylebuildmode", function( x, y, z )
 		gamemode.Call("PlayerLoadout", x)
 		return
 	end
-
-	if (x:query( "kylebuildmodesettings" )) then
+	
+	if (x:IsValid() and x:query( "kylebuildmodesettings" )) then
 		if z[1]=="addweapon" then
 			table.insert(_Kyle_Buildmode["buildloadout"], z[2])
 		elseif z[1]=="removeweapon" then
