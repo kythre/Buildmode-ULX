@@ -59,11 +59,11 @@ hook.Add( "ULibReplicatedCvarChanged", "kylebuildmodecvar",  function(v,w,x,y,z)
 end)
 
 concommand.Add("kylebuildmode", function( x, y, z )
-	if z[1]=="defaultloadout" then
+	if x:IsValid() and z[1]=="defaultloadout" then
 		gamemode.Call("PlayerLoadout", x)
 		return
 	end
-	
+		
 	if (x:IsValid() and x:query( "kylebuildmodesettings" )) then
 		if z[1]=="addweapon" then
 			table.insert(_Kyle_Buildmode["buildloadout"], z[2])
