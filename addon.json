@@ -1,6 +1,6 @@
 {
 	"title"		:	"ULX Buildmode",
-	"type"		:	"ServerContent",
+	"type"		:	"Tool",
 	"tags"		:	["build"],
 	"ignore"	:
 	[
