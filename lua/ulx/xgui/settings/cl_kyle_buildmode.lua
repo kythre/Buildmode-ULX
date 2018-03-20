@@ -7,7 +7,7 @@ panels = {}
 --"Entering Buildmdode" Panel
 local panel_entering 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_buildmodespawn 				= xlib.makecheckbox{ x=5, y=5, label="Players Spawn with Buildmode", parent=panel_entering, repconvar="rep_kylebuildmode_spawnwithbuildmode"}
-local check_pvppersist					= xlib.makecheckbox{ x=5, y=25, label="Override the above if the player was in PVP", parent=panel_entering, repconvar="rep_kylebuildmode_persistpvp"}
+local check_pvppersist					= xlib.makecheckbox{ x=5, y=25, label="Override the above if the player enables PVP", parent=panel_entering, repconvar="rep_kylebuildmode_persistpvp"}
 local number_buildmodedelay				= xlib.makenumberwang {x=5, y=45, w=35, parent=panel_entering }
 local label_buildmodedelay 				= xlib.makelabel{ x=number_buildmodedelay.x+40, y=number_buildmodedelay.y+2, w=500, h=15, parent=panel_entering, label="Buildmode Delay" }
 number_buildmodedelay.OnValueChanged	= function(y, z)
@@ -19,10 +19,11 @@ number_buildmodedelay.OnValueChanged	= function(y, z)
 local panel_whilein 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrcit weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
 local check_restrcitsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrcit SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
-local check_allownoclip 				= xlib.makecheckbox{ x=5, y=45, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
-local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=65, label="Prevent Propkill in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
-local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=85, label="Highlight Builders", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightbuilders"}
-local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=105, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
+local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=45, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
+local check_allownoclip 				= xlib.makecheckbox{ x=5, y=65, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
+local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Propkill in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
+local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=105, label="Highlight Builders", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightbuilders"}
+local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=125, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
 
 --"Exiting Buildmdode" Panel
 local panel_exiting 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
@@ -34,6 +35,7 @@ number_pvpdelay.OnValueChanged 			= function(y, z)
 												RunConsoleCommand("kylebuildmode", "set", "pvpdelay", z)
 											end
 										end
+
 --"Advanced Settings" Panel
 local panel_advanced					= xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
 local panel_builderweapon 				= xlib.makepanel{ x=5, y=150, w=130, h=170, parent=panel_advanced}
@@ -129,10 +131,26 @@ function color_pvphalo:OnChange( z )
 	RunConsoleCommand("kylebuildmode", "set", "highlightpvperscolor", string.sub(table.ToString(z), 2, string.len(table.ToString(z))-2))
 end
 
+--"Advanced Settings" Panel
+local panel_help					= xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
+local label_steam					= xlib.makelabel{ x=0, y=260, w=500, h=15, parent=panel_help, label="For questions and comments, click here:" }
+local button_steam					= xlib.makebutton{x=0, y=275, w=240, h=15,  parent=panel_help, label="http://steamcommunity.com/sharedfiles/filedetails/?id=1308900979" }
+button_steam.DoClick 				= function()
+										gui.OpenURL( "http://steamcommunity.com/sharedfiles/filedetails/?id=1308900979")
+									end
+local label_github					= xlib.makelabel{ x=0, y=290, w=500, h=15, parent=panel_help, label="For information, issues, and requests click here:" }
+local button_github					= xlib.makebutton{x=0, y=305, w=240, h=15,  parent=panel_help, label="https://github.com/kythre/Buildmode-ULX" }
+button_github.DoClick 				= function()
+										gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/")
+									end
+
+
+
 panels[1] = panel_entering
 panels[2] = panel_whilein
 panels[3] = panel_exiting
 panels[4] = panel_advanced
+panels[5] = panel_help
 
 for a in pairs(panels) do
 	panels[a]:SetVisible(false)
@@ -145,6 +163,7 @@ list_categories:AddLine("Entering Buildmode")
 list_categories:AddLine("While In Buildmode")
 list_categories:AddLine("Exiting Buildmode")
 list_categories:AddLine("Advanced")
+list_categories:AddLine("Help")
 list_categories.OnRowSelected = function(self, LineID)
 	for a in pairs(panels) do
 		panels[a]:SetVisible(false)
@@ -172,8 +191,3 @@ end )
 xgui.addSettingModule( "Buildmode", b, "icon16/eye.png", "kylebuildmodesettings" )
 
 
--- local be = xlib.makelabel{ x=302, y=285, w=500, h=15, parent=b, label="For information, issues, and requests click here:" }
--- local bea = xlib.makebutton{x=300, y=300, w=240, h=15,  parent=b, label="https://github.com/kythre/Buildmode-ULX" }
--- bea.DoClick = function()
-	-- gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/")
--- end

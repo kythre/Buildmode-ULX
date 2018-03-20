@@ -26,9 +26,9 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["allownoclip"] = 0
 	_Kyle_Buildmode["returntospawn"] = 0
 	_Kyle_Buildmode["antipropkill"] = 0
-	_Kyle_Buildmode["spawnwithbuildmode"] = 0
+	_Kyle_Buildmode["spawnwithbuildmode"] = 1
 	_Kyle_Buildmode["persistpvp"] = 0
-	_Kyle_Buildmode["disablepvppropspawn"] = 0
+	_Kyle_Buildmode["pvppropspawn"] = 1
 	_Kyle_Buildmode["highlightbuilders"] = 0
 	_Kyle_Buildmode["highlightpvpers"] = 0
 	_Kyle_Buildmode["buildloadout"] = {"weapon_physgun", "gmod_tool", "gmod_camera"}
@@ -60,6 +60,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_persistpvp",				"rep_kylebuildmode_persistpvp",				_Kyle_Buildmode["persistpvp"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_allownoclip",			"rep_kylebuildmode_allownoclip",			_Kyle_Buildmode["allownoclip"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_antipropkill",			"rep_kylebuildmode_antipropkill",			_Kyle_Buildmode["antipropkill"],		false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_pvppropspawn",			"rep_kylebuildmode_pvppropspawn",			_Kyle_Buildmode["pvppropspawn"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightbuilders",		"rep_kylebuildmode_highlightbuilders",		_Kyle_Buildmode["highlightbuilders"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightpvpers",		"rep_kylebuildmode_highlightpvpers",		_Kyle_Buildmode["highlightpvpers"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_weaponlistmode",			"rep_kylebuildmode_weaponlistmode",			_Kyle_Buildmode["weaponlistmode"],		false,true,"kylebuildmodesettings")
