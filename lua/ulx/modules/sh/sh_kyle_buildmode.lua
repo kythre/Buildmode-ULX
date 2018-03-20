@@ -38,7 +38,7 @@ local function NoCollide(z)
 	z:SetNWInt("CollisionGroup", z:GetCollisionGroup())			
 	
 	--Set the new attributes
-	z:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	z:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	z:SetRenderMode(1)
 	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
 	z:SetNWInt("_kyle_nocollide", true)

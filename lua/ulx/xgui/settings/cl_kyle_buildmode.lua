@@ -152,7 +152,6 @@ list_categories.OnRowSelected = function(self, LineID)
 	panels[LineID]:SetVisible(true)
 end
 
-
 net.Receive( "kylebuildmode_senddata", function()
 	_Kyle_Buildmode = net.ReadTable()
 	list_builderweapons:Clear()
