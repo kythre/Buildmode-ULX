@@ -7,7 +7,8 @@ panels = {}
 --"Entering Buildmdode" Panel
 local panel_entering 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_buildmodespawn 				= xlib.makecheckbox{ x=5, y=5, label="Players Spawn with Buildmode", parent=panel_entering, repconvar="rep_kylebuildmode_spawnwithbuildmode"}
-local number_buildmodedelay				= xlib.makenumberwang {x=5, y=25, w=35, parent=panel_entering }
+local check_pvppersist					= xlib.makecheckbox{ x=5, y=25, label="Override the above if the player was in PVP", parent=panel_entering, repconvar="rep_kylebuildmode_persistpvp"}
+local number_buildmodedelay				= xlib.makenumberwang {x=5, y=45, w=35, parent=panel_entering }
 local label_buildmodedelay 				= xlib.makelabel{ x=number_buildmodedelay.x+40, y=number_buildmodedelay.y+2, w=500, h=15, parent=panel_entering, label="Buildmode Delay" }
 number_buildmodedelay.OnValueChanged	= function(y, z)
 											if _Kyle_Buildmode["builddelay"] != z then
@@ -25,7 +26,7 @@ local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=105, label="Highlight
 
 --"Exiting Buildmdode" Panel
 local panel_exiting 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
-local check_buildmoderespawn 			= xlib.makecheckbox{ x=5, y=5, label="Respawn Player on Buildmode exit", parent=panel_exiting, repconvar="rep_kylebuildmode_killonpvp"}
+local check_buildmoderespawn 			= xlib.makecheckbox{ x=5, y=5, label="Return Player to spawn on Buildmode exit", parent=panel_exiting, repconvar="rep_kylebuildmode_returntospawn"}
 local number_pvpdelay 					= xlib.makenumberwang {x=5, y=25, w=35, parent=panel_exiting }
 local label_pvpdelay 					= xlib.makelabel{ x=number_pvpdelay.x+40, y=number_pvpdelay.y+2, w=500, h=15, parent=panel_exiting, label="PVP Delay" }
 number_pvpdelay.OnValueChanged 			= function(y, z)

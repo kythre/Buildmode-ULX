@@ -50,8 +50,9 @@ end
 
 local function _kyle_Buildmode_Enable(z)
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
+
 	if z:Alive() then
-		ULib.getSpawnInfo( z )
+		ULib.getSpawnInfo(z)
 		if _Kyle_Buildmode["restrictweapons"]=="1" then
 			z:StripWeapons()
 			for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
@@ -63,47 +64,48 @@ local function _kyle_Buildmode_Enable(z)
 			NoCollide(z:GetVehicle())
 		end
 	end
+	
+	--having two buildmode variables seems redundant, however im too lazy to replace one with the other (if possible)
 	z.buildmode = true
-	z:SetNWBool("_Kyle_Buildmode",true)
+	z:SetNWBool("_Kyle_Buildmode", true)
+	
+	--boolean to say if buildmode was enabled because the player had just spawned
 	z:SetNWBool("_Kyle_BuildmodeOnSpawn", z:GetNWBool("_kyle_died"))
 end
 
 local function _kyle_Buildmode_Disable(z)
+	z:SetNWBool("_Kyle_Buildmode", false)
+	z.buildmode = false
+	z:SendLua("GAMEMODE:AddNotify(\"Buildmode disabled.\",NOTIFY_GENERIC, 5)")
+	
 	if z:Alive() then
 		local pos = z:GetPos()
 		
-		if _Kyle_Buildmode["killonpvp"]=="1" and z:InVehicle() then
-			z:ExitVehicle()
-		end
-		
-		if _Kyle_Buildmode["restrictweapons"]=="1" and not z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
-			ULib.spawn( z, true ) --Returns the player to spawn with the weapons they had before entering buildmode
-		end
-		
-		if _Kyle_Buildmode["killonpvp"]=="1" then
-			ULib.spawn( z, false)  --Returns the player to spawn
-		end
-		
-		if _Kyle_Buildmode["restrictweapons"]=="1" and z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
-			z:ConCommand("kylebuildmode defaultloadout") --called when buildmode is disabled after spawning with it enabled
-		end
-		
-		if _Kyle_Buildmode["killonpvp"]=="0" then
-			z:SetPos( pos ) --Returns the player to where they where when they disabled buildmode
-		end
-		
-		if 	z:GetNWBool("kylenocliped") then
-			z:ConCommand( "noclip" ) --called when the player had noclip while in buildmode
-		end
-		
 		if z:InVehicle() then
 			TryUnNoCollide(z:GetVehicle())
+			if _Kyle_Buildmode["returntospawn"]=="1" then
+				--eject player from vehicle so they can be returned to spawn
+				z:ExitVehicle()
+			end
 		end		
-	end
+		
+		if _Kyle_Buildmode["restrictweapons"]=="1" then
+			--dont use spawn info that doesnt exist
+			ULib.spawn( z, not z:GetNWBool("_Kyle_BuildmodeOnSpawn") ) 		
+			--if there isnt any spawn info, use the default loadout
+			if z:GetNWBool("_Kyle_BuildmodeOnSpawn") then z:ConCommand("kylebuildmode defaultloadout") end
+		end
+		
+		--ULIB.spawn moves the player to spawn, this will return the player to where they where while in buildmode
+		if _Kyle_Buildmode["returntospawn"]=="0" then
+			z:SetPos(pos)
+		end
 	
-	z.buildmode = false
-	z:SendLua("GAMEMODE:AddNotify(\"Buildmode disabled.\",NOTIFY_GENERIC, 5)")
-	z:SetNWBool("_Kyle_Buildmode",false)
+		if 	z:GetNWBool("kylenocliped") then
+			--called when the player had noclip while in buildmode
+			z:ConCommand( "noclip" )
+		end
+	end
 end
 
 local function _kyle_builder_spawn_weapon(z)
@@ -160,16 +162,16 @@ hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y, z)
 end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
-	if (_Kyle_Buildmode["spawnwithbuildmode"]=="1" or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
+	--z:GetNWBool("_kyle_died") makes sure that the player is spawning after a death and not the ulib respawn
+	if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and not z:GetNWBool("_Kyle_pvpoverride")) or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
 	end
 	z:SetNWBool("_kyle_died", false)
 end )
 
 hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
-	if _Kyle_Buildmode["spawnwithbuildmode"]=="1" then
-		_kyle_Buildmode_Enable(z)
-	end
+	z:SetNWBool("_kyle_died", true)
+	z:SetNWBool("_Kyle_pvpoverride", false)
 end )
 
 hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
@@ -192,14 +194,7 @@ end)
 
 hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
-        if not y:GetNWBool("_kyle_buildNotify") then
-			y:SetNWBool("_kyle_buildNotify", true)
-            y:SendLua("GAMEMODE:AddNotify(\"You cannot pick this weapon up while in Build Mode.\",NOTIFY_GENERIC, 5)") 
-            timer.Create( "_kyle_NotifyBuildmode", 5, 1, function()
-                y:SetNWBool("_kyle_buildNotify", false)
-            end)
-	   end
-	   return false   
+		return false   
     end
 end)
 
@@ -244,6 +239,9 @@ local CATEGORY_NAME = "_Kyle_1"
 local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply, target_plys, should_revoke )
     local affected_plys = {}
 	for y,z in pairs(target_plys) do
+		if calling_ply == z and _Kyle_Buildmode["persistpvp"]=="1" then
+			z:SetNWBool("_Kyle_pvpoverride", not should_revoke)
+		end
         if not z.buildmode and not should_revoke and not z:GetNWBool("kylependingbuildchange") then
 			if _Kyle_Buildmode["builddelay"]!="0" then
 				z:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
