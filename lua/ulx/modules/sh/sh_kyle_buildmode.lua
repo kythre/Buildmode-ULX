@@ -206,7 +206,7 @@ hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
 end)
 
 hook.Add("PlayerSpawnProp", "kylebuildmodepropspawn", function(y, z)
-	if _Kyle_Buildmode["pvppropspawn"]=="0" and not y.buildmode then
+	if _Kyle_Buildmode["pvppropspawn"]=="0" and not y.buildmode and not y:IsAdmin() then
 	    y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn props while in PVP.\",NOTIFY_GENERIC, 5)")
 		return false
 	end
