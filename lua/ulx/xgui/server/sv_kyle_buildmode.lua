@@ -15,9 +15,9 @@ end
 
 xgui.addSVModule( "kylebuildmode_load", function()	
 	xgui.addDataType( "_Kyle_Buildmode", function()  
-	net.Start( "kylebuildmode_senddata", false )
-	net.WriteTable( _Kyle_Buildmode )
-	net.Broadcast()
+		net.Start( "kylebuildmode_senddata", false )
+		net.WriteTable( _Kyle_Buildmode )
+		net.Broadcast()
 	end, "kylebuildmodesettings", 0, -10 )
 	
 	--Load defaults in to settings table
@@ -41,20 +41,21 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["builddelay"] = 0
 	_Kyle_Buildmode["pvpdelay"] = 0
 	
+	
 	--Load saved settings
 	local saved = {}
 	if file.Exists( "kylebuildmode.txt", "DATA" ) then
 		saved = ULib.parseKeyValues( file.Read( "kylebuildmode.txt" ))
 	end
-	
+		
 	--Make sure all of the saved settings overwrite the default settings
 	for a,b in pairs(saved) do
-		_Kyle_Buildmode[b] = saved[b]
+		_Kyle_Buildmode[a] = saved[a]
 	end
 	
 	ULib.replicatedWritableCvar("kylebuildmode_restrictweapons",		"rep_kylebuildmode_restrictweapons",		_Kyle_Buildmode["restrictweapons"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_restrictsents",			"rep_kylebuildmode_restrictsents",			_Kyle_Buildmode["restrictsents"],		false,true,"kylebuildmodesettings")
-	ULib.replicatedWritableCvar("kylebuildmode_returntospawn",				"rep_kylebuildmode_returntospawn",				_Kyle_Buildmode["returntospawn"],			false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_returntospawn",			"rep_kylebuildmode_returntospawn",			_Kyle_Buildmode["returntospawn"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_spawnwithbuildmode",		"rep_kylebuildmode_spawnwithbuildmode",		_Kyle_Buildmode["spawnwithbuildmode"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_persistpvp",				"rep_kylebuildmode_persistpvp",				_Kyle_Buildmode["persistpvp"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_allownoclip",			"rep_kylebuildmode_allownoclip",			_Kyle_Buildmode["allownoclip"],			false,true,"kylebuildmodesettings")
