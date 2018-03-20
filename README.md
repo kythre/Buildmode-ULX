@@ -4,53 +4,87 @@ Hopefully prevent Builders from abusing GodMode
 Hopefully prevents PVPers from bothering Builders
 
 ## Current Features:
+* Easy to use, organized UI
+* Builders are 100% unable to deal damage
+* Anti-Prop Minge for both Builders and PVPers
+* Custom Limits for Builder Weapons and Entities
+* Custom Colors for Builder and PVPer Halos
+* Noclip for Builders only
+* More to come...
 
-#### "Limit Weapons to Builder Loadout"
-When enabled, anyone who enters Buildmode will be stripped of their weapons and gived the "builder loadout", set by an admin.
+## Details
+* Players Spawn With Buildmode
+  * When a player first spawns in the server, or later respawns, Buildmode becomes enabled.
+* Override the above if the player enables PVP
+  * Allows the player to explicitly stay in Buildmode when they respawn when the above setting is enabled
+* Buildmode Delay
+  * The amount of time (in seconds) that the player has to wait before Buildmode is enabled
+  * Useful for preventing players from entering Buildmode just to not be killed
+  
+![alt text](https://i.imgur.com/1blRo5X.png "ULX Settings Page")
+  
+* Restrict weapons with 'Builder Weapons'
+  * Limit Builders' loadouts using the list on the "Advanced" tab
+  * Builders can only spawn or pickup weapons from this list, while enabled
+  * Useful for cleaning a Builder's inventory
+  * If disabled Builders can still have weapons, however they can not do any damage
+  * Can be a whitelist or a blacklist
+  * Default is a whitelist of the physgun toolgun, and camera
+* Restrcit SENTs with 'Builder SENTs'
+  * Limit the SENTs a Builder can spawn using the list on the "Advanced" tab
+  * Useful for preventing Builders from spawning explosive SENTs
+  * Can be a whitelist or a blacklist
+  * Default is a blacklist of nothing
+  * Added per Feature Request https://github.com/kythre/Buildmode-ULX/issues/26
+* Allow Prop Spawn in PVP
+  * When disabled only Builders and admins can spawn props
+  * Useful for preventing PVPers from Building
+* Alow Noclip in Buildmode
+  * When enabled, Builders can use the default Sandbox noclip ("noclip" in console).
+  * Does not affect ULX Noclip
+  * sbox_noclip must be 0
+  * I recommend installing [UClip](https://github.com/TeamUlysses/uclip) so Builders can't noclip through the world, players, or anyone else's props.
+* Prevent Propkill in Buildmode
+  * No-collides Builders' Props when are spawned, so they can't be dropped on players
+  * No-collides Builders' Props when they are physgunned so they can not be used to proppush or propclimb
+  * No-collides Builders' Vechiles when they are are being driven so you can not run other players over or mess up their buildings
+  * Disables no-collide when the props and vehicles are not moving and there is nothing inside them.
+* Highlight Builders
+  * Renders a colored halo around Builders
+  * Color can be configured on the "Advanced" tab
+  * Default color is Blue
+* Highlight PVPers
+  * Color can be configured on the "Advanced" tab
+  * Default color is Red
+  
+  ![alt text](https://i.imgur.com/r2Xg49y.png "ULX Settings Page")
+  ![alt text](https://i.imgur.com/ShtCPL7.png "ULX Settings Page")
 
-#### "Respawn Players on Buildmode Exit"
-When enabled, anyone who exits Buildmode will be returned to spawn as to prevent the sneaky types from entering someones base while in Buildmode then turning it off to kill anyone there
-
-#### "Players Spawn with Buildmode"
-When enabled, Buildmode will be enabled by default
-
-#### "Allow Noclip in Buildmode"
-When enabled, players in Buildmode will be able to Noclip
-
-"sv_noclip" must be set to 0, otherwise all players will have the ability to noclip
-
-this setting does not interfere with ULX Noclip
-
-#### "Prevent Propkill In Buildmode"
-When enabled, players in Buildmode will have a slightly more difficult time trying to propkill
-
-Builders can not throw props
-
-Props and Vehicles are noclipped when Builders pick them up with a physgun
-
-Props and Vehicles are noclipped when Builders spawn them
-
-Props and Vehicles that are noclipped do not collide with players, however they will collide with other props
-
-Vehicles are noclipped when a Builder enters them or when the driver enables Buildmode
-
-Props and Vehicles are unnoclipped when the prop is not moving (so they can not fall on players and kill them) and when no players are inside the prop (so Builders shouldn't be able to prop-trap players)
-
-#### "Highlight Builders"
-When enabled, players in Buildmode will have an outline using a color chosen by and admin
-
-#### "Highlight PVPers"
-When enabled, players NOT in Buildmode will have an outline using a color chosen by and admin
-
-### "Buildmode Delay"
-Delays the ablity to enable Buildmode for this many seconds
-
-### "PVP Delay"
-Delays the ablity to disable Buildmode for this many seconds
-
-## Current Settings Page
-![alt text](https://i.imgur.com/yuyUPFS.png "ULX Settings Page")
-
-## Current (Default) Halo Look
-![alt text](http://i.imgur.com/ShtCPL7.png "Halos")
-PVPer On Left, Builder on Right
+* Return Player to spawn on Buildmode exit
+  * Teleports the player back to spawn when they exit Buildmode
+  * Useful for preventing abuse of Builder Noclip to fly in to players' bases
+* PVP Delay
+  * The amount of time (in seconds) that the player has to wait before Buildmode is disabled
+  * Useful for preventing players from exiting Buildmode just to kill someone
+  
+![alt text](https://i.imgur.com/OK0Q00w.png "ULX Settings Page")
+  
+* Builder Halo Color
+  * RGB Selection for custom halo color 
+* PVPer Halo Color
+  * RGB Selection for custom halo color
+* Builder Weapons
+  * List of weapons that Builders can or can not have
+  * List is a Blacklist determines whether the above list is for allowed weapons or disallowed weapons
+  * Type the weapon in to the box, then press the + button to add
+  * Select the weapon from the list, then press the - button to remove
+  * The + button will turn into a - button automatically
+* Builder SENTs
+  * List of sents that Builders can or can not have
+  * List is a Blacklist determines whether the above list is for allowed weapons or disallowed sents
+  * Type the weapon in to the box, then press the + button to add
+  * Select the weapon from the list, then press the - button to remove
+  * The + button will turn into a - button automatically
+  
+  
+![alt text](https://i.imgur.com/2HgSZ3F.png "ULX Settings Page")
