@@ -106,6 +106,14 @@ local function _kyle_Buildmode_Disable(z)
 	z:SetNWBool("_Kyle_Buildmode",false)
 end
 
+local function _kyle_builder_spawn_weapon(z)
+	return ((_Kyle_Buildmode["weaponlistmode"]=="0") == table.HasValue(_Kyle_Buildmode["buildloadout"], z))
+end
+
+local function _kyle_builder_spawn_entity(z)
+	return ((_Kyle_Buildmode["entitylistmode"]=="0") == table.HasValue(_Kyle_Buildmode["builderentitylist"], z))
+end
+
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		NoCollide(z)
@@ -133,7 +141,7 @@ hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 		z:SetNWBool("Physgunned", true)
 		NoCollide(z)
 	end
-end)
+end, HOOK_MONITOR_LOW )
 
 hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
@@ -166,31 +174,27 @@ end )
 
 hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
 	z:SetNWBool("_kyle_died", true)
-end )
+end, HOOK_HIGH )
 
-hook.Add("PlayerGiveSWEP", "kyleBuildmodeTrySWEPGive", function(y, z)
-     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
-        y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
-	  return false
-    end
-end)
-
-hook.Add("PlayerSpawnSWEP", "kyleBuildmodeTrySWEPSpawn", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], z) then
-        y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn weapons while in Buildmode.\",NOTIFY_GENERIC, 5)")
+hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
+        y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
     end
 end)
 
-hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
-	return  y.buildmode or z:GetAttacker().buildmode
+hook.Add("PlayerSpawnSWEP", "kylebuildmoderestrictswep", function(y, z)
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
+        y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
+		return false
+    end
 end)
 
-hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not table.HasValue(_Kyle_Buildmode["buildloadout"], string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
-        if y:GetNWBool("_kyle_buildNotify")then
+hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
+    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
+        if not y:GetNWBool("_kyle_buildNotify") then
 			y:SetNWBool("_kyle_buildNotify", true)
-            y:SendLua("GAMEMODE:AddNotify(\"You cannot pick up weapons while in Build Mode.\",NOTIFY_GENERIC, 5)") 
+            y:SendLua("GAMEMODE:AddNotify(\"You cannot pick this weapon up while in Build Mode.\",NOTIFY_GENERIC, 5)") 
             timer.Create( "_kyle_NotifyBuildmode", 5, 1, function()
                 y:SetNWBool("_kyle_buildNotify", false)
             end)
@@ -198,6 +202,17 @@ hook.Add("PlayerCanPickupWeapon", "kyleBuildmodeTrySWEPPickup", function(y, z)
 	   return false   
     end
 end)
+
+hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
+    if y.buildmode and _Kyle_Buildmode["restrictsents"]=="1" and not _kyle_builder_spawn_entity(z) then
+        y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
+		return false
+    end
+end)
+
+hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
+	return  y.buildmode or z:GetAttacker().buildmode
+end, HOOK_HIGH)
 
 hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	if _Kyle_Buildmode["highlightbuilders"] then

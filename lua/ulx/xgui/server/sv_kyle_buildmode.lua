@@ -20,33 +20,47 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	net.Broadcast()
 	end, "kylebuildmodesettings", 0, -10 )
 	
-	if not file.Exists( "kylebuildmode.txt", "DATA" ) then
-		--Make defaults
-		_Kyle_Buildmode["restrictweapons"] = 0
-		_Kyle_Buildmode["allownoclip"] = 0
-		_Kyle_Buildmode["killonpvp"] = 0
-		_Kyle_Buildmode["antipropkill"] = 0
-		_Kyle_Buildmode["spawnwithbuildmode"] = 0
-		_Kyle_Buildmode["disablepvppropspawn"] = 0
-		_Kyle_Buildmode["highlightbuilders"] = 0
-		_Kyle_Buildmode["highlightpvpers"] = 0
-		_Kyle_Buildmode["buildloadout"] = {"weapon_physgun", "gmod_tool", "gmod_camera"}
-		_Kyle_Buildmode["highlightbuilderscolor"]= "0,128,255"
-		_Kyle_Buildmode["highlightpvperscolor"]= "255,0,0"
-		_Kyle_Buildmode["builddelay"] = 0
-		_Kyle_Buildmode["pvpdelay"] = 0
-	else 
-		_Kyle_Buildmode = ULib.parseKeyValues( file.Read( "kylebuildmode.txt" ) )
+	--Load defaults in to settings table
+	_Kyle_Buildmode["restrictweapons"] = 0
+	_Kyle_Buildmode["restrictsents"] = 0
+	_Kyle_Buildmode["allownoclip"] = 0
+	_Kyle_Buildmode["killonpvp"] = 0
+	_Kyle_Buildmode["antipropkill"] = 0
+	_Kyle_Buildmode["spawnwithbuildmode"] = 0
+	_Kyle_Buildmode["disablepvppropspawn"] = 0
+	_Kyle_Buildmode["highlightbuilders"] = 0
+	_Kyle_Buildmode["highlightpvpers"] = 0
+	_Kyle_Buildmode["buildloadout"] = {"weapon_physgun", "gmod_tool", "gmod_camera"}
+	_Kyle_Buildmode["builderentitylist"] = {}
+	-- 0 for whitelist, 1 for blacklist
+	_Kyle_Buildmode["weaponlistmode"] = 0
+	_Kyle_Buildmode["entitylistmode"] = 1
+	_Kyle_Buildmode["highlightbuilderscolor"]= "0,128,255"
+	_Kyle_Buildmode["highlightpvperscolor"]= "255,0,0"
+	_Kyle_Buildmode["builddelay"] = 0
+	_Kyle_Buildmode["pvpdelay"] = 0
+	
+	--Load saved settings
+	if file.Exists( "kylebuildmode.txt", "DATA" ) then
+		local saved = ULib.parseKeyValues( file.Read( "kylebuildmode.txt" ))
 	end
-
+	
+	--Replaced the default settings with the saved settings
+	for a,b in pairs(_Kyle_Buildmode) do
+		if not a then _Kyle_Buildmode[b] = saved[b] end
+	end
+	
 	ULib.replicatedWritableCvar("kylebuildmode_restrictweapons",		"rep_kylebuildmode_restrictweapons",		_Kyle_Buildmode["restrictweapons"],		false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_restrictsents",			"rep_kylebuildmode_restrictsents",			_Kyle_Buildmode["restrictsents"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_killonpvp",				"rep_kylebuildmode_killonpvp",				_Kyle_Buildmode["killonpvp"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_spawnwithbuildmode",		"rep_kylebuildmode_spawnwithbuildmode",		_Kyle_Buildmode["spawnwithbuildmode"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_allownoclip",			"rep_kylebuildmode_allownoclip",			_Kyle_Buildmode["allownoclip"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_antipropkill",			"rep_kylebuildmode_antipropkill",			_Kyle_Buildmode["antipropkill"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightbuilders",		"rep_kylebuildmode_highlightbuilders",		_Kyle_Buildmode["highlightbuilders"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightpvpers",		"rep_kylebuildmode_highlightpvpers",		_Kyle_Buildmode["highlightpvpers"],		false,true,"kylebuildmodesettings")
-
+	ULib.replicatedWritableCvar("kylebuildmode_weaponlistmode",			"rep_kylebuildmode_weaponlistmode",			_Kyle_Buildmode["weaponlistmode"],		false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_entitylistmode",			"rep_kylebuildmode_entitylistmode",			_Kyle_Buildmode["entitylistmode"],		false,true,"kylebuildmodesettings")
+	
 	SaveAndSend()
 end )
 
@@ -69,6 +83,10 @@ concommand.Add("kylebuildmode", function( x, y, z )
 			table.insert(_Kyle_Buildmode["buildloadout"], z[2])
 		elseif z[1]=="removeweapon" then
 			table.RemoveByValue( _Kyle_Buildmode["buildloadout"], z[2] )
+		elseif z[1]=="addentity" then
+			table.insert(_Kyle_Buildmode["builderentitylist"], z[2])
+		elseif z[1]=="removeentity" then
+			table.RemoveByValue( _Kyle_Buildmode["builderentitylist"], z[2] )
 		elseif z[1]=="set" then
 			if z[2] then
 				if z[3] then
