@@ -10,10 +10,9 @@ local function TryUnNoCollide(z)
 		local d = false
 		
 		for aa,ab in pairs(c) do
-			d = d or ab:IsPlayer() 
-			d = d or ab:IsVehicle() 
-			d = d or ab:GetClass() == "prop_physics"
-			d = d and ab != z
+			d = d or ab != z and ab:IsPlayer() 
+			d = d or ab != z and ab:IsVehicle() 
+			d = d or ab != z and ab:GetClass() == "prop_physics"
 		end		
 
 		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
