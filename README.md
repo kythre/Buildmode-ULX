@@ -24,9 +24,7 @@ Hopefully prevents PVPers from bothering Builders
   * The amount of time (in seconds) that the player has to wait before Buildmode is enabled
   * Useful for preventing players from entering Buildmode just to not be killed
   
-
-  ![alt text](https://i.imgur.com/r2Xg49y.png "ULX Settings Page")
-  ![alt text](https://i.imgur.com/ShtCPL7.png "ULX Settings Page")
+![alt text](https://i.imgur.com/r2Xg49y.png "ULX Settings Page")
   
 * Restrict weapons with 'Builder Weapons'
   * Limit Builders' loadouts using the list on the "Advanced" tab
@@ -61,15 +59,16 @@ Hopefully prevents PVPers from bothering Builders
 * Highlight PVPers
   * Color can be configured on the "Advanced" tab
   * Default color is Red
+
+![alt text](https://i.imgur.com/ShtCPL7.png "ULX Settings Page")
+  
 * Highlight Only When Looking
   * Only the player you are looking at is highlighted
 * Show Text Status
   * Displays a the build status of a player under their health when you hover over them
     ![alt text](https://i.imgur.com/BlVHNPI.png")
   
-
-  ![alt text](https://i.imgur.com/OK0Q00w.png "ULX Settings Page")
-
+![alt text](https://i.imgur.com/OK0Q00w.png "ULX Settings Page")
 
 * Return Player to spawn on Buildmode exit
   * Teleports the player back to spawn when they exit Buildmode
@@ -80,7 +79,6 @@ Hopefully prevents PVPers from bothering Builders
   
 ![alt text](https://i.imgur.com/2HgSZ3F.png "ULX Settings Page")
 
-  
 * Builder Halo Color
   * RGB Selection for custom halo color 
 * PVPer Halo Color
@@ -97,5 +95,3 @@ Hopefully prevents PVPers from bothering Builders
   * Type the weapon in to the box, then press the + button to add
   * Select the weapon from the list, then press the - button to remove
   * The + button will turn into a - button automatically
-  
-  
