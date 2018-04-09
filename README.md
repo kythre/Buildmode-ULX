@@ -13,6 +13,9 @@ Hopefully prevents PVPers from bothering Builders
 * More to come...
 
 ## Details
+
+![alt text](https://i.imgur.com/1blRo5X.png "ULX Settings Page")
+
 * Players Spawn With Buildmode
   * When a player first spawns in the server, or later respawns, Buildmode becomes enabled.
 * Override the above if the player enables PVP
@@ -21,7 +24,9 @@ Hopefully prevents PVPers from bothering Builders
   * The amount of time (in seconds) that the player has to wait before Buildmode is enabled
   * Useful for preventing players from entering Buildmode just to not be killed
   
-![alt text](https://i.imgur.com/1blRo5X.png "ULX Settings Page")
+
+  ![alt text](https://i.imgur.com/r2Xg49y.png "ULX Settings Page")
+  ![alt text](https://i.imgur.com/ShtCPL7.png "ULX Settings Page")
   
 * Restrict weapons with 'Builder Weapons'
   * Limit Builders' loadouts using the list on the "Advanced" tab
@@ -56,9 +61,15 @@ Hopefully prevents PVPers from bothering Builders
 * Highlight PVPers
   * Color can be configured on the "Advanced" tab
   * Default color is Red
+* Highlight Only When Looking
+  * Only the player you are looking at is highlighted
+* Show Text Status
+  * Displays a the build status of a player under their health when you hover over them
+    ![alt text](https://i.imgur.com/BlVHNPI.png")
   
-  ![alt text](https://i.imgur.com/r2Xg49y.png "ULX Settings Page")
-  ![alt text](https://i.imgur.com/ShtCPL7.png "ULX Settings Page")
+
+  ![alt text](https://i.imgur.com/OK0Q00w.png "ULX Settings Page")
+
 
 * Return Player to spawn on Buildmode exit
   * Teleports the player back to spawn when they exit Buildmode
@@ -67,7 +78,8 @@ Hopefully prevents PVPers from bothering Builders
   * The amount of time (in seconds) that the player has to wait before Buildmode is disabled
   * Useful for preventing players from exiting Buildmode just to kill someone
   
-![alt text](https://i.imgur.com/OK0Q00w.png "ULX Settings Page")
+![alt text](https://i.imgur.com/2HgSZ3F.png "ULX Settings Page")
+
   
 * Builder Halo Color
   * RGB Selection for custom halo color 
@@ -87,4 +99,3 @@ Hopefully prevents PVPers from bothering Builders
   * The + button will turn into a - button automatically
   
   
-![alt text](https://i.imgur.com/2HgSZ3F.png "ULX Settings Page")
