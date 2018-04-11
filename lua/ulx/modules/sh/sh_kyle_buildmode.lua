@@ -1,3 +1,6 @@
+if not ulx then return end
+if not GAMEMODE["Name"] == "Sandbox" then return end
+
 local function TryUnNoCollide(z)	
 	timer.Simple(0.1, function() 
 		--Exit if the prop stops existing
@@ -243,11 +246,15 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	end
 	
 	-- --add setting later for render mode
-	z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],",")
-	if _Kyle_Buildmode["highlightbuilders"]=="1" then halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true) end
+	if _Kyle_Buildmode["highlightbuilders"]=="1" then 
+		z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],",")
+		halo.Add(w, Color(z[1],z[2],z[3]), 4, 4, 1, true)
+	end
 	
-	z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],",")		
-	if _Kyle_Buildmode["highlightpvpers"]=="1" then halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) end	
+	if _Kyle_Buildmode["highlightpvpers"]=="1" then 
+		z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],",")
+		halo.Add(x, Color(z[1],z[2],z[3]), 4, 4, 1, true) 
+	end	
 end)
 
 hook.Add("HUDPaint", "KyleBuildehudpaint", function()

@@ -1,3 +1,6 @@
+if not ulx then return end
+if not GAMEMODE["Name"] == "Sandbox" then return end
+
 _Kyle_Buildmode = _Kyle_Buildmode or {}
 xgui.prepareDataType( "_Kyle_Buildmode" )
 
