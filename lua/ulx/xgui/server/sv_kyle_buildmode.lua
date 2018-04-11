@@ -1,6 +1,4 @@
 if not SERVER then return end
-if not ulx then return end
-if not GAMEMODE["Name"] == "Sandbox" then return end
 
 ULib.ucl.registerAccess( "kylebuildmodesettings", "superadmin", "Allows managing all settings related to Buildmode.", "XGUI" )
 

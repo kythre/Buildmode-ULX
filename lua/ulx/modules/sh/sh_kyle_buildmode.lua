@@ -1,6 +1,3 @@
-if not ulx then return end
-if not GAMEMODE["Name"] == "Sandbox" then return end
-
 local function TryUnNoCollide(z)	
 	timer.Simple(0.1, function() 
 		--Exit if the prop stops existing
