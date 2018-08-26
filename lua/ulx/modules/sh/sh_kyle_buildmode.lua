@@ -280,34 +280,51 @@ hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 end)
 
 local CATEGORY_NAME = "_Kyle_1"
-local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply, target_plys, should_revoke )
-    local affected_plys = {}
+local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply, should_revoke )
+	if _Kyle_Buildmode["persistpvp"]=="1" then
+		calling_ply:SetNWBool("_Kyle_pvpoverride", not should_revoke)
+	end
+	if not calling_ply.buildmode and not should_revoke and not calling_ply:GetNWBool("kylependingbuildchange") then
+		if _Kyle_Buildmode["builddelay"]!="0" then
+			calling_ply:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
+			calling_ply:SetNWBool("kylependingbuildchange", true)
+			timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() 
+					_kyle_Buildmode_Enable(z) 
+					calling_ply:SetNWBool("kylependingbuildchange", false)
+				end)
+		else
+			_kyle_Buildmode_Enable(calling_ply)
+			ulx.fancyLogAdmin(calling_ply, "#A entered Buildmode")
+		end
+	elseif calling_ply.buildmode and should_revoke and not calling_ply:GetNWBool("kylependingbuildchange") then
+		if _Kyle_Buildmode["pvpdelay"]!="0" then
+			calling_ply:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..tonumber(_Kyle_Buildmode["pvpdelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
+				calling_ply:SetNWBool("kylependingbuildchange", true)
+				timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()
+				_kyle_Buildmode_Disable(calling_ply)
+				calling_ply:SetNWBool("kylependingbuildchange", false)
+					end)
+		else
+			_kyle_Buildmode_Disable(calling_ply)
+			ulx.fancyLogAdmin(calling_ply, "#A exited Buildmode")
+		end
+	end
+end, "!build")
+kylebuildmode:defaultAccess(ULib.ACCESS_ALL)
+kylebuildmode:addParam{type=ULib.cmds.BoolArg, invisible=true}
+kylebuildmode:help("Grants Buildmode to self.")
+kylebuildmode:setOpposite("ulx pvp", {_, true}, "!pvp")
+
+local kylebuildmodeadmin = ulx.command("_Kyle_1", "ulx fbuild", function( calling_ply, target_plys, should_revoke)
+	local affected_plys = {}
 	for y,z in pairs(target_plys) do
 		if calling_ply == z and _Kyle_Buildmode["persistpvp"]=="1" then
 			z:SetNWBool("_Kyle_pvpoverride", not should_revoke)
 		end
         if not z.buildmode and not should_revoke and not z:GetNWBool("kylependingbuildchange") then
-			if _Kyle_Buildmode["builddelay"]!="0" then
-				z:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
-				z:SetNWBool("kylependingbuildchange", true)
-				timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() 
-						_kyle_Buildmode_Enable(z) 
-						z:SetNWBool("kylependingbuildchange", false)
-					end)
-			else
-				_kyle_Buildmode_Enable(z)
-			end
+			_kyle_Buildmode_Enable(z)
         elseif z.buildmode and should_revoke and not z:GetNWBool("kylependingbuildchange") then
-			if _Kyle_Buildmode["pvpdelay"]!="0" then
-				z:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..tonumber(_Kyle_Buildmode["pvpdelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
-					z:SetNWBool("kylependingbuildchange", true)
-					timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()
-					_kyle_Buildmode_Disable(z)
-					z:SetNWBool("kylependingbuildchange", false)
-						end)
-			else
-				_kyle_Buildmode_Disable(z)
-			end
+			_kyle_Buildmode_Disable(z)
         end
         table.insert(affected_plys, z)
 	end
@@ -317,9 +334,10 @@ local buildmode = ulx.command( "_Kyle_1", "ulx buildmode", function( calling_ply
 	else
 		ulx.fancyLogAdmin(calling_ply, "#A granted Buildmode upon #T", affected_plys)
 	end
-end, "!build" )
-buildmode:addParam{type=ULib.cmds.PlayersArg, ULib.cmds.optional}
-buildmode:defaultAccess(ULib.ACCESS_ALL)
-buildmode:addParam{type=ULib.cmds.BoolArg, invisible=true}
-buildmode:help("Grants Buildmode to target(s).")
-buildmode:setOpposite("ulx pvp", {_, _, true}, "!pvp")
+end, "!fbuild" )
+kylebuildmodeadmin:addParam{type=ULib.cmds.PlayersArg}
+kylebuildmodeadmin:defaultAccess(ULib.ACCESS_OPERATOR)
+kylebuildmodeadmin:addParam{type=ULib.cmds.BoolArg, invisible=true}
+kylebuildmodeadmin:help("Forces Buildmode on target(s).")
+kylebuildmodeadmin:setOpposite("ulx pvpadmin", {_, _, true}, "!fpvp")
+
