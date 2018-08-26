@@ -102,23 +102,19 @@ local function _kyle_Buildmode_Disable(z)
 			end
 		end		
 		
-		--if weapons are resticted then give the player their weapons back or give them the default loadout if they spawned with buildmode
-		if _Kyle_Buildmode["restrictweapons"]=="1" then
-			if z:GetNWBool("_Kyle_BuildmodeOnSpawn") then 
-				z:ConCommand("kylebuildmode defaultloadout")
-				ULib.spawn( z, false)
-			else
-				ULib.spawn( z, true )
-			end
-		end
+		ULib.spawn(z, not z:GetNWBool("_Kyle_BuildmodeOnSpawn"))
+		
+		if _Kyle_Buildmode["restrictweapons"]=="1" and z:GetNWBool("_Kyle_BuildmodeOnSpawn") then
+			z:ConCommand("kylebuildmode defaultloadout")
+		end		
 		
 		--ULIB.spawn moves the player to spawn, this will return the player to where they where while in buildmode
 		if _Kyle_Buildmode["returntospawn"]=="0" then
 			z:SetPos(pos)
 		end
 
-		--Re enable noclip if they had it in build		
-		if 	z:GetNWBool("kylenocliped") then
+		--disable noclip if they had it in build		
+		if z:GetNWBool("kylenocliped") then
 			z:ConCommand( "noclip" )
 		end
 	end
@@ -301,6 +297,7 @@ hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 end)
 
 local CATEGORY_NAME = "_Kyle_1"
+
 local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply, should_revoke )
 	if _Kyle_Buildmode["persistpvp"]=="1" then
 		calling_ply:SetNWBool("_Kyle_pvpoverride", not should_revoke)
@@ -360,5 +357,4 @@ kylebuildmodeadmin:addParam{type=ULib.cmds.PlayersArg}
 kylebuildmodeadmin:defaultAccess(ULib.ACCESS_OPERATOR)
 kylebuildmodeadmin:addParam{type=ULib.cmds.BoolArg, invisible=true}
 kylebuildmodeadmin:help("Forces Buildmode on target(s).")
-kylebuildmodeadmin:setOpposite("ulx pvpadmin", {_, _, true}, "!fpvp")
-
+kylebuildmodeadmin:setOpposite("ulx fpvp", {_, _, true}, "!fpvp")
