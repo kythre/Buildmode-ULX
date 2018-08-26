@@ -1,10 +1,9 @@
-local function TryUnNoCollide(z)	
+local function TryUnNoclip(z)	
 	timer.Simple(0.1, function() 
-		--Exit if the prop stops existing
-		if not z:IsValid() then return end
-		if not z:GetNWBool("_kyle_nocollide") then return end
+		--Exit if the prop stops existing or isnt noclipped
+		if not (z:IsValid() or z:GetNWBool("_kyle_noclip")) then return end
 		
-		--Check to see if there is a player inside the prop
+		--Check to see if there is anything inside the props bounds
 		local a,b = z:GetCollisionBounds()
 		local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
 		local d = false
@@ -15,22 +14,26 @@ local function TryUnNoCollide(z)
 			d = d or ab != z and ab:GetClass() == "prop_physics"
 		end		
 
-		--If there isnt a player inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
+		--If there isnt anything inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
+		----if there is soemthing inside the prop, then it could get stuck
+		----if the prop is being held by a physgun, then it could be used to proppush
+		----if the prop is moving then it could smash a player when
 		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
 			--Recall the old attributes
 			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
 			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
-			z:SetNWInt("_kyle_nocollide", false)
+			z:SetNWInt("_kyle_noclip", false)
 		else
-			TryUnNoCollide(z)
+			--if it fails, try again
+			TryUnNoclip(z)
 		end
 	end )
 end
 
-local function NoCollide(z)
-	--Exit if we are already un nocollided
-	if z:GetNWBool("_kyle_nocollide") then return end
+local function Noclip(z)
+	--Exit if we are already un noclipd
+	if z:GetNWBool("_kyle_noclip") then return end
 
 	--Store the old attributes (to be recalled later)
 	z:SetNWInt("RenderMode", z:GetRenderMode())
@@ -41,32 +44,37 @@ local function NoCollide(z)
 	z:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	z:SetRenderMode(1)
 	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
-	z:SetNWInt("_kyle_nocollide", true)
+	z:SetNWInt("_kyle_noclip", true)
 	
-	if z:IsVehicle() and z:GetDriver().buildmode then return end
-	--Try to un nocollide asap
-	TryUnNoCollide(z)
+	--Try to un noclip asap if its not a vehicle being driven by a builder
+	if not (z:IsVehicle() and z:GetDriver().buildmode) then TryUnNoclip(z) end
 end
 
 local function _kyle_Buildmode_Enable(z)
-    z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
-
 	if z:Alive() then
-		ULib.getSpawnInfo(z)
 		if _Kyle_Buildmode["restrictweapons"]=="1" then
+			--save the players loadout for when they exit buildmode
+			ULib.getSpawnInfo(z)
+			--remove their weapons
 			z:StripWeapons()
+			--give them whitelisted weapons
 			for x,y in pairs(_Kyle_Buildmode["buildloadout"]) do 
 				z:Give(y)
 			end
 		end
 		
+		--noclip their vehicle so they cant run anyone anyone over while in buildmode
 		if z:InVehicle() then
-			NoCollide(z:GetVehicle())
+			noclip(z:GetVehicle())
 		end
 	end
+
+	--some say that sendlua is lazy and wrong but idc
+    z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 	
-	--having two buildmode variables seems redundant, however im too lazy to replace one with the other (if possible)
 	z.buildmode = true
+	
+	--second buildmode variable for halos and status text on hover
 	z:SetNWBool("_Kyle_Buildmode", true)
 	
 	--boolean to say if buildmode was enabled because the player had just spawned
@@ -74,35 +82,43 @@ local function _kyle_Buildmode_Enable(z)
 end
 
 local function _kyle_Buildmode_Disable(z)
-	z:SetNWBool("_Kyle_Buildmode", false)
 	z.buildmode = false
+	
+	--second buildmode variable for halos and status text on hover
+	z:SetNWBool("_Kyle_Buildmode", false)
+	
+	--some say that sendlua is lazy and wrong but idc
 	z:SendLua("GAMEMODE:AddNotify(\"Buildmode disabled.\",NOTIFY_GENERIC, 5)")
 	
 	if z:Alive() then
+		--save their position incase they dont need to return to spawn on exit
 		local pos = z:GetPos()
 		
+		--if they are in a vehicle try to un noclip their vehicle and kick them out of it if they need to return to spawn
 		if z:InVehicle() then
-			TryUnNoCollide(z:GetVehicle())
+			TryUnnoclip(z:GetVehicle())
 			if _Kyle_Buildmode["returntospawn"]=="1" then
-				--eject player from vehicle so they can be returned to spawn
 				z:ExitVehicle()
 			end
 		end		
 		
+		--if weapons are resticted then give the player their weapons back or give them the default loadout if they spawned with buildmode
 		if _Kyle_Buildmode["restrictweapons"]=="1" then
-			--dont use spawn info that doesnt exist
-			ULib.spawn( z, not z:GetNWBool("_Kyle_BuildmodeOnSpawn") ) 		
-			--if there isnt any spawn info, use the default loadout
-			if z:GetNWBool("_Kyle_BuildmodeOnSpawn") then z:ConCommand("kylebuildmode defaultloadout") end
+			if z:GetNWBool("_Kyle_BuildmodeOnSpawn") then 
+				z:ConCommand("kylebuildmode defaultloadout")
+				ULib.spawn( z, false)
+			else
+				ULib.spawn( z, true )
+			end
 		end
 		
 		--ULIB.spawn moves the player to spawn, this will return the player to where they where while in buildmode
 		if _Kyle_Buildmode["returntospawn"]=="0" then
 			z:SetPos(pos)
 		end
-	
+
+		--Re enable noclip if they had it in build		
 		if 	z:GetNWBool("kylenocliped") then
-			--called when the player had noclip while in buildmode
 			z:ConCommand( "noclip" )
 		end
 	end
@@ -118,30 +134,30 @@ end
 
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		NoCollide(z)
+		noclip(z)
 	end
 end)
 
 hook.Add("PlayerSpawnedVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		NoCollide(z)
+		noclip(z)
 	end
 end)
 
 hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		NoCollide(z)
+		noclip(z)
 	end
 end)
 
 hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
-	TryUnNoCollide(z)
+	TryUnnoclip(z)
 end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
-		NoCollide(z)
+		noclip(z)
 	end
 end, HOOK_MONITOR_LOW )
 
@@ -149,20 +165,21 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", false)
 		
-		--Kill the prop's momentum so it can not be thrown
+		--Kill the prop's velocity so it can not be thrown
 		z:SetPos(z:GetPos())
 	end
 end)
 
 hook.Add("PlayerNoClip", "KylebuildmodeNoclip", function(y, z)
 	if _Kyle_Buildmode["allownoclip"]=="1" then
+		--allow players to use default sandbox noclip
 		y:SetNWBool("kylenocliped", z)
 		return z == false or y.buildmode
 	end
 end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
-	--z:GetNWBool("_kyle_died") makes sure that the player is spawning after a death and not the ulib respawn
+	--z:GetNWBool("_kyle_died") makes sure that the player is spawning after an actual death and not the ulib respawn function
 	if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and not z:GetNWBool("_Kyle_pvpoverride")) or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
 	end
@@ -180,14 +197,16 @@ end, HOOK_HIGH )
 
 hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
-        y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
+       	--some say that sendlua is lazy and wrong but idc
+		y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
     end
 end)
 
 hook.Add("PlayerSpawnSWEP", "kylebuildmoderestrictswep", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
-        y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
+        --some say that sendlua is lazy and wrong but idc
+		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
     end
 end)
@@ -200,14 +219,16 @@ end)
 
 hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
     if y.buildmode and _Kyle_Buildmode["restrictsents"]=="1" and not _kyle_builder_spawn_entity(z) then
-        y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
+       	--some say that sendlua is lazy and wrong but idc
+		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
     end
 end)
 
 hook.Add("PlayerSpawnProp", "kylebuildmodepropspawn", function(y, z)
 	if _Kyle_Buildmode["pvppropspawn"]=="0" and not y.buildmode and not y:IsAdmin() then
-	    y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn props while in PVP.\",NOTIFY_GENERIC, 5)")
+    	--some say that sendlua is lazy and wrong but idc
+		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn props while in PVP.\",NOTIFY_GENERIC, 5)")
 		return false
 	end
 end)
