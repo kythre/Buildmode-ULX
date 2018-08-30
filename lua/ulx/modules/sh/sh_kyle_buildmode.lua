@@ -230,7 +230,7 @@ hook.Add("PlayerSpawnProp", "kylebuildmodepropspawn", function(y, z)
 end)
 
 hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
-	return  y.buildmode or z:GetAttacker().buildmode
+	return  y.buildmode or z:GetAttacker().buildmode or z:GetInflictor().Owner.buildmode
 end, HOOK_HIGH)
 
 hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
