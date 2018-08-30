@@ -130,19 +130,19 @@ end
 
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		noclip(z)
+		Noclip(z)
 	end
 end)
 
 hook.Add("PlayerSpawnedVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		noclip(z)
+		Noclip(z)
 	end
 end)
 
 hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		noclip(z)
+		Noclip(z)
 	end
 end)
 
@@ -153,7 +153,7 @@ end)
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
-		noclip(z)
+		Noclip(z)
 	end
 end, HOOK_MONITOR_LOW )
 
