@@ -65,7 +65,7 @@ local function _kyle_Buildmode_Enable(z)
 		
 		--noclip their vehicle so they cant run anyone anyone over while in buildmode
 		if z:InVehicle() then
-			noclip(z:GetVehicle())
+			Noclip(z:GetVehicle())
 		end
 	end
 
@@ -96,7 +96,7 @@ local function _kyle_Buildmode_Disable(z)
 		
 		--if they are in a vehicle try to un noclip their vehicle and kick them out of it if they need to return to spawn
 		if z:InVehicle() then
-			TryUnnoclip(z:GetVehicle())
+			TryUnNoclip(z:GetVehicle())
 			if _Kyle_Buildmode["returntospawn"]=="1" then
 				z:ExitVehicle()
 			end
@@ -147,7 +147,7 @@ hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 end)
 
 hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
-	TryUnnoclip(z)
+	TryUnNoclip(z)
 end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
