@@ -52,7 +52,7 @@ end
 
 local function _kyle_Buildmode_Enable(z)
 	if z:Alive() then
-		if _Kyle_Buildmode["restrictweapons"]=="1" then
+		if _Kyle_Buildmode["restrictweapons"]=="1" then			
 			--save the players loadout for when they exit buildmode
 			ULib.getSpawnInfo(z)
 			--remove their weapons
@@ -244,7 +244,6 @@ hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
 	
 	if z:GetInflictor():IsValid() then
 		if z:GetInflictor().Owner and z:GetInflictor().Owner.buildmode then 
-			print("asdf")
 			return true
 		end
 	end
@@ -324,7 +323,7 @@ local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply
 			calling_ply:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
 			calling_ply:SetNWBool("kylependingbuildchange", true)
 			timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() 
-					_kyle_Buildmode_Enable(z) 
+					_kyle_Buildmode_Enable(calling_ply) 
 					calling_ply:SetNWBool("kylependingbuildchange", false)
 				end)
 		else
