@@ -19,6 +19,7 @@ number_buildmodedelay.OnValueChanged	= function(y, z)
 local panel_whilein 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrcit weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
 local check_restrcitsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrcit SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
+local check_adminbypass					= xlib.makecheckbox{ x=228,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_whilein, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
 local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=45, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
 local check_allownoclip 				= xlib.makecheckbox{ x=5, y=65, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
 local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Propkill in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}

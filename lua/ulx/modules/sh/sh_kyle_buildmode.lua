@@ -1,4 +1,4 @@
-local function TryUnNoclip(z)	
+local function _kyle_Prop_TryUnNoclip(z)	
 	timer.Simple(0.1, function() 
 		--Exit if the prop stops existing or isnt noclipped
 		if not (z:IsValid() or z:GetNWBool("_kyle_noclip")) then return end
@@ -26,12 +26,12 @@ local function TryUnNoclip(z)
 			z:SetNWInt("_kyle_noclip", false)
 		else
 			--if it fails, try again
-			TryUnNoclip(z)
+			_kyle_Prop_TryUnNoclip(z)
 		end
 	end )
 end
 
-local function Noclip(z)
+local function _kyle_Prop_Noclip(z)
 	--Exit if we are already un noclipd
 	if z:GetNWBool("_kyle_noclip") then return end
 
@@ -47,7 +47,7 @@ local function Noclip(z)
 	z:SetNWInt("_kyle_noclip", true)
 	
 	--Try to un noclip asap if its not a vehicle being driven by a builder
-	if not (z:IsVehicle() and z:GetDriver().buildmode) then TryUnNoclip(z) end
+	if not (z:IsVehicle() and z:GetDriver().buildmode) then _kyle_Prop_TryUnNoclip(z) end
 end
 
 local function _kyle_Buildmode_Enable(z)
@@ -65,7 +65,7 @@ local function _kyle_Buildmode_Enable(z)
 		
 		--noclip their vehicle so they cant run anyone anyone over while in buildmode
 		if z:InVehicle() then
-			Noclip(z:GetVehicle())
+			_kyle_Prop_Noclip(z:GetVehicle())
 		end
 	end
 
@@ -96,7 +96,7 @@ local function _kyle_Buildmode_Disable(z)
 		
 		--if they are in a vehicle try to un noclip their vehicle and kick them out of it if they need to return to spawn
 		if z:InVehicle() then
-			TryUnNoclip(z:GetVehicle())
+			_kyle_Prop_TryUnNoclip(z:GetVehicle())
 			if _Kyle_Buildmode["returntospawn"]=="1" then
 				z:ExitVehicle()
 			end
@@ -120,40 +120,56 @@ local function _kyle_Buildmode_Disable(z)
 	end
 end
 
-local function _kyle_builder_spawn_weapon(z)
-	return ((_Kyle_Buildmode["weaponlistmode"]=="0") == table.HasValue(_Kyle_Buildmode["buildloadout"], z))
+local function _kyle_builder_spawn_weapon(y, z)
+	local restrictweapons = _Kyle_Buildmode["restrictweapons"]=="1" and y.buildmode
+
+	if restrictweapons then 
+		local restrictionmet = (_Kyle_Buildmode["weaponlistmode"]=="0") == table.HasValue(_Kyle_Buildmode["buildloadout"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end
 end
 
-local function _kyle_builder_spawn_entity(z)
-	return ((_Kyle_Buildmode["entitylistmode"]=="0") == table.HasValue(_Kyle_Buildmode["builderentitylist"], z))
+local function _kyle_builder_spawn_entity(y, z)
+	local restrictsents = Kyle_Buildmode["restrictsents"]=="1" and y.buildmode
+	
+	if restrictsents then 
+		local restrictionmet = (_Kyle_Buildmode["entitylistmode"]=="0") == table.HasValue(_Kyle_Buildmode["builderentitylist"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end 
 end
 
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		Noclip(z)
+		_kyle_Prop_Noclip(z)
 	end
 end)
 
 hook.Add("PlayerSpawnedVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		Noclip(z)
+		_kyle_Prop_Noclip(z)
 	end
 end)
 
 hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
-		Noclip(z)
+		_kyle_Prop_Noclip(z)
 	end
 end)
 
 hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
-	TryUnNoclip(z)
+	_kyle_Prop_TryUnNoclip(z)
 end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
-		Noclip(z)
+		_kyle_Prop_Noclip(z)
 	end
 end, HOOK_MONITOR_LOW )
 
@@ -192,7 +208,7 @@ hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
 end, HOOK_HIGH )
 
 hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
+    if not _kyle_builder_spawn_weapon(y, z) then
        	--some say that sendlua is lazy and wrong but idc
 		y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
@@ -200,7 +216,7 @@ hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
 end)
 
 hook.Add("PlayerSpawnSWEP", "kylebuildmoderestrictswep", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(z) then
+	if not _kyle_builder_spawn_weapon(y, z) then
         --some say that sendlua is lazy and wrong but idc
 		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
@@ -208,13 +224,13 @@ hook.Add("PlayerSpawnSWEP", "kylebuildmoderestrictswep", function(y, z)
 end)
 
 hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictweapons"]=="1" and not _kyle_builder_spawn_weapon(string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
+    if not _kyle_builder_spawn_weapon(y, string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
 		return false   
     end
 end)
 
 hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
-    if y.buildmode and _Kyle_Buildmode["restrictsents"]=="1" and not _kyle_builder_spawn_entity(z) then
+    if not _kyle_builder_spawn_entity(y, z) then
        	--some say that sendlua is lazy and wrong but idc
 		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
@@ -311,8 +327,6 @@ hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 		end
 	end
 end)
-
-local CATEGORY_NAME = "_Kyle_1"
 
 local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply, should_revoke )
 	if _Kyle_Buildmode["persistpvp"]=="1" then

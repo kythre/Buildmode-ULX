@@ -38,6 +38,8 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["pvpdelay"] = 0
 	_Kyle_Buildmode["highlightonlywhenlooking"] = 0
 	_Kyle_Buildmode["showtextstatus"] = 1
+	_Kyle_Buildmode["adminsbypassrestrictions"] = 0
+
 	
 	--Load saved settings
 	local saved = {}
@@ -64,7 +66,9 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_entitylistmode",				"rep_kylebuildmode_entitylistmode",				_Kyle_Buildmode["entitylistmode"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightonlywhenlooking",	"rep_kylebuildmode_highlightonlywhenlooking",	_Kyle_Buildmode["highlightonlywhenlooking"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_showtextstatus",				"rep_kylebuildmode_showtextstatus",				_Kyle_Buildmode["showtextstatus"],				false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_adminsbypassrestrictions",	"rep_kylebuildmode_adminsbypassrestrictions",	_Kyle_Buildmode["adminsbypassrestrictions"],				false,true,"kylebuildmodesettings")
 
+	
 	SaveAndSend()
 end )
 
