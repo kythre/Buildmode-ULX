@@ -66,8 +66,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_entitylistmode",				"rep_kylebuildmode_entitylistmode",				_Kyle_Buildmode["entitylistmode"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightonlywhenlooking",	"rep_kylebuildmode_highlightonlywhenlooking",	_Kyle_Buildmode["highlightonlywhenlooking"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_showtextstatus",				"rep_kylebuildmode_showtextstatus",				_Kyle_Buildmode["showtextstatus"],				false,true,"kylebuildmodesettings")
-	ULib.replicatedWritableCvar("kylebuildmode_adminsbypassrestrictions",	"rep_kylebuildmode_adminsbypassrestrictions",	_Kyle_Buildmode["adminsbypassrestrictions"],				false,true,"kylebuildmodesettings")
-
+	ULib.replicatedWritableCvar("kylebuildmode_adminsbypassrestrictions",	"rep_kylebuildmode_adminsbypassrestrictions",	_Kyle_Buildmode["adminsbypassrestrictions"],	false,true,"kylebuildmodesettings")
 	
 	SaveAndSend()
 end )
@@ -96,7 +95,11 @@ concommand.Add("kylebuildmode", function( x, y, z )
 		
 	if (x:IsValid() and x:query( "kylebuildmodesettings" )) then
 		if z[1]=="addweapon" then
-			table.insert(_Kyle_Buildmode["buildloadout"], z[2])
+			if weapons.Get(z[2]) then
+				table.insert(_Kyle_Buildmode["buildloadout"], z[2])
+			else
+				x:SendLua("GAMEMODE:AddNotify(\"Invalid SWEP. Could not add to list.\",NOTIFY_ERROR, 5)")
+			end
 		elseif z[1]=="removeweapon" then
 			table.RemoveByValue( _Kyle_Buildmode["buildloadout"], z[2] )
 		elseif z[1]=="addentity" then
