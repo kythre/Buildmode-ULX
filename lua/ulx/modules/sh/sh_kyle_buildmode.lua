@@ -179,6 +179,7 @@ hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
 end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
+	if not SERVER then return end
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
 		_kyle_Prop_Noclip(z)
