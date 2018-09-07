@@ -19,7 +19,6 @@ number_buildmodedelay.OnValueChanged	= function(y, z)
 local panel_whilein 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrcit weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
 local check_restrcitsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrcit SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
-local check_adminbypass					= xlib.makecheckbox{ x=228,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_whilein, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
 local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=45, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
 local check_allownoclip 				= xlib.makecheckbox{ x=5, y=65, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
 local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Propkill in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
@@ -27,7 +26,6 @@ local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=105, label="Highlig
 local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=125, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
 local check_highlightonlywhenlooking	= xlib.makecheckbox{ x=5, y=145, label="Highlight Only When Looking", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightonlywhenlooking"}
 local check_showtextstatus				= xlib.makecheckbox{ x=5, y=165, label="Show Text Status", parent=panel_whilein, repconvar="rep_kylebuildmode_showtextstatus"}
-
 
 --"Exiting Buildmdode" Panel
 local panel_exiting 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
@@ -39,7 +37,13 @@ number_pvpdelay.OnValueChanged 			= function(y, z)
 												RunConsoleCommand("kylebuildmode", "set", "pvpdelay", z)
 											end
 										end
+--"Extras" Panel
+local panel_extras						=	xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
+local check_adminbypass					= xlib.makecheckbox{ x=5,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_extras, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
+local check_pvpantipropkill				= xlib.makecheckbox{ x=5,y=25, label="Prevent PVPers from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkillpvper"}
 
+										
+										
 --"Advanced Settings" Panel
 local panel_advanced					= xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
 local panel_builderweapon 				= xlib.makepanel{ x=5, y=150, w=130, h=170, parent=panel_advanced}
@@ -153,8 +157,9 @@ button_github.DoClick 				= function()
 panels[1] = panel_entering
 panels[2] = panel_whilein
 panels[3] = panel_exiting
-panels[4] = panel_advanced
-panels[5] = panel_help
+panels[4] = panel_extras
+panels[5] = panel_advanced
+panels[6] = panel_help
 
 for a in pairs(panels) do
 	panels[a]:SetVisible(false)
@@ -166,6 +171,7 @@ list_categories.Columns[1].DoClick = function() end
 list_categories:AddLine("Entering Buildmode")
 list_categories:AddLine("While In Buildmode")
 list_categories:AddLine("Exiting Buildmode")
+list_categories:AddLine("Extras")
 list_categories:AddLine("Advanced")
 list_categories:AddLine("Help")
 list_categories.OnRowSelected = function(self, LineID)

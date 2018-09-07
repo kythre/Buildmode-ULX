@@ -148,16 +148,28 @@ hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		_kyle_Prop_Noclip(z)
 	end
+	
+	if not x.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
+		_kyle_Prop_Noclip(z)
+	end
 end)
 
 hook.Add("PlayerSpawnedVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		_kyle_Prop_Noclip(z)
 	end
+	
+	if not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
+		_kyle_Prop_Noclip(z)
+	end
 end)
 
 hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
+		_kyle_Prop_Noclip(z)
+	end
+	
+	if not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
 		_kyle_Prop_Noclip(z)
 	end
 end)
@@ -171,10 +183,22 @@ hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 		z:SetNWBool("Physgunned", true)
 		_kyle_Prop_Noclip(z)
 	end
+		
+	if IsValid(z) and (not z:IsPlayer()) and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then 
+		z:SetNWBool("Physgunned", true)
+		_kyle_Prop_Noclip(z)
+	end
 end, HOOK_MONITOR_LOW )
 
 hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
+		z:SetNWBool("Physgunned", false)
+		
+		--Kill the prop's velocity so it can not be thrown
+		z:SetPos(z:GetPos())
+	end
+	
+	if IsValid(z) and (not z:IsPlayer()) and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then 
 		z:SetNWBool("Physgunned", false)
 		
 		--Kill the prop's velocity so it can not be thrown
@@ -198,7 +222,6 @@ hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 	z:SetNWBool("_kyle_died", false)
 	
 	if z.buildmode == nil then z.buildmode = false end
-	
 end )
 
 hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
@@ -263,8 +286,9 @@ hook.Add("ShouldCollide", "kylebuildmodeShouldCollide", function(y, z)
 end)
 
 hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
-	if y:IsValid() and y.buildmode then return true end
-
+	if y.buildmode then return true end
+	if y:GetNWBool("_kyle_noclip") then return true end
+	
 	if z:GetAttacker():IsValid() then
 		if z:GetAttacker():IsPlayer() and z:GetAttacker().buildmode then 
 			return true
