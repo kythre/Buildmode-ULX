@@ -38,14 +38,14 @@ number_pvpdelay.OnValueChanged 			= function(y, z)
 											end
 										end
 --"Extras" Panel
-local panel_extras						=	xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
+local panel_extras						=	xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
 local check_adminbypass					= xlib.makecheckbox{ x=5,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_extras, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
 local check_pvpantipropkill				= xlib.makecheckbox{ x=5,y=25, label="Prevent PVPers from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkillpvper"}
 
 										
 										
 --"Advanced Settings" Panel
-local panel_advanced					= xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
+local panel_advanced					= xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
 local panel_builderweapon 				= xlib.makepanel{ x=5, y=150, w=130, h=170, parent=panel_advanced}
 local list_builderweapons 				= xlib.makelistview{ x=0, y=0, w=130, h=125, parent=panel_builderweapon }
 local button_addremoveweapon 			= xlib.makebutton{x=105, y=125, w=25, h=25,  parent=panel_builderweapon, label="+", disabled=true }
@@ -140,7 +140,7 @@ function color_pvphalo:OnChange( z )
 end
 
 --"Advanced Settings" Panel
-local panel_help					= xlib.makepanel{ x=162, y=5, w=425, h=322, parent=b}
+local panel_help					= xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
 local label_steam					= xlib.makelabel{ x=0, y=260, w=500, h=15, parent=panel_help, label="For questions and comments, click here:" }
 local button_steam					= xlib.makebutton{x=0, y=275, w=240, h=15,  parent=panel_help, label="http://steamcommunity.com/sharedfiles/filedetails/?id=1308900979" }
 button_steam.DoClick 				= function()

@@ -1,24 +1,167 @@
+local function entitydata(z) 
+	print("Owner", z:GetOwner())
+	print("Class", z:GetClass())
+	print("Model", z:GetModel())
+	print("Name", z:GetName())
+	print("MoveParent", z:GetMoveParent())
+	print("Creator", z:GetCreator())
+	print("Parent", z:GetParent())
+	print("RagdollOwner", z:GetRagdollOwner())
+	print("Children")
+	print("PhysicsObject", z:GetPhysicsObject())
+	PrintTable(z:GetChildren())
+	print("Table")
+	PrintTable(z:GetTable())
+	print("GetAttachments")
+	PrintTable(z:GetAttachments())
+end
+
 local function _kyle_Prop_TryUnNoclip(z)	
-	timer.Simple(0.1, function() 
-		--Exit if the prop stops existing or isnt noclipped
-		if not (z:IsValid() or z:GetNWBool("_kyle_noclip")) then return end
+	timer.Simple(0.5, function() 
+		--Exit if the prop stops existing or isnt noclipped or has already attempted unnoclipping for too long
+		if not (z:IsValid() and z:GetNWBool("_kyle_noclip") and z:GetNWInt("_kyle_unnoclip_attempt", 0) < 100) then return end
+		
+		z:SetNWInt("_kyle_unnoclip_attempt", z:GetNWInt("_kyle_unnoclip_attempt", 0)+1)
 		
 		--Check to see if there is anything inside the props bounds
 		local a,b = z:GetCollisionBounds()
 		local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
+		--if d then keep us noclipped because there is a entity inside us
 		local d = false
-		
 		for aa,ab in pairs(c) do
-			d = d or ab != z and ab:IsPlayer() 
-			d = d or ab != z and ab:IsVehicle() 
-			d = d or ab != z and ab:GetClass() == "prop_physics"
-		end		
-
+			--if e then ignore this blocking entity
+			local e = false
+		
+			if z == ab	then
+				e = true
+			end
+			
+			if z == ab:GetOwner() then 
+				e = true
+			end
+			
+			if z == ab:GetParent() then 
+				e = true
+			end
+			
+			if z:GetParent() == ab then
+				e = true
+			end
+			
+			if z:IsVehicle() and ab == z:GetDriver() then
+				e = true
+			end
+			
+			--simfphys support
+			if simfphys then
+				--if we are a wheel of a the simfphys car that is blocking us
+				if simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z) then 
+					e = true
+				end
+				
+				--if we are a prop that is owned by a simfphys car
+				if simfphys.IsCar(ab:GetOwner()) then
+					e = true
+				end
+				
+				--if we are a simfphys car and the blocking entity is the driver
+				if simfphys.IsCar(z) and ab == z:GetDriver()then 
+					e = true
+				end  
+		
+				--if we are a simfphys car wheel and the blocking entity is a part of our car
+				--if the blocking entity's parent is a simfphys car and we are a wheel from that car
+				if simfphys.IsCar(ab:GetParent()) and table.HasValue(ab:GetParent().Wheels, z) then 
+					e = true
+				end
+			end
+			
+			
+			--SCars Support
+			--check to see if we are the parent of the blocking prop
+			if 	z == ab:GetParent().SCarOwner then
+				e = true
+			end
+			
+			--check to see if the we have any constraints on the blocking entity
+			--check e to avoid any unnecessary overhead
+			if not e and z.Constraints then
+				for aa in pairs(z.Constraints) do
+					if IsValid(z.Constraints[aa]) and z.Constraints[aa]:IsConstraint() then 
+						local a, b = z.Constraints[aa]:GetConstrainedEntities()
+						if ab == a or ab == b then
+							e = true
+							break
+						end
+					end
+				end
+			end
+			
+			if not e then
+				if ab:IsPlayer()				 	then d = true end
+				if ab:IsVehicle() 					then d = true end
+				if ab:GetClass() == "prop_physics" then d = true end
+			end
+			
+			if d then 
+				--print()
+				--print(z:GetNWInt("_kyle_unnoclip_attempt", 0))
+				--print(z, ab)
+				--entitydata(ab)
+				--print(scar)
+				--print(z:GetTable()["pSeat"][1])
+				--PrintTable(ab:GetTable())
+				--print(z:GetTable()["Wheels"][1]:GetModel())
+				break
+			end
+		end	
+		
 		--If there isnt anything inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
 		----if there is soemthing inside the prop, then it could get stuck
 		----if the prop is being held by a physgun, then it could be used to proppush
 		----if the prop is moving then it could smash a player when
-		if not d and not z:GetNWBool("Physgunned") and z:GetVelocity():Length() < 1 then
+		d = d or z:GetNWBool("Physgunned") 
+		d = d or z:GetParent():GetNWBool("Physgunned")
+		d = d or z:GetVelocity():Length() > 1
+		
+		--simfphys support
+		if simfphys then 
+			--if we are a simfphys car then check to see if any wheels are noclipped
+			if simfphys.IsCar(z) then
+				for aa,ab in pairs(z.Wheels) do
+					d=d or ab:GetNWBool("Physgunned")
+				end	
+			--if we are a simfphys car wheel then check if the car is physgunned or if any of the other wheels are physgunned
+			elseif z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
+				--go through the consraints to find the one that is connected to a simfphys car
+				for aa in pairs(z.Constraints) do
+					local a, b = z.Constraints[aa]:GetConstrainedEntities()
+					if IsValid(a) and simfphys.IsCar(a) then 
+						d=d or a:GetNWBool("Physgunned") 
+						for aa,ab in pairs(a.Wheels) do
+							d=d or ab:GetNWBool("Physgunned") 
+						end	
+					end
+				end
+			end
+		end
+
+		--SCar support
+		if z:GetClass() == "sent_sakarias_carwheel" and false then
+			--print(z)
+			--d=d or ab:GetNWBool("Physgunned") 
+			for aa in pairs(z.Constraints) do
+				local a, b = z.Constraints[aa]:GetConstrainedEntities()
+				if IsValid(a) and simfphys.IsCar(a) then 
+					d=d or a:GetNWBool("Physgunned") 
+					for aa,ab in pairs(a.Wheels) do
+						d=d or ab:GetNWBool("Physgunned") 
+					end	
+				end
+			end
+		end
+		
+		if not d then
 			--Recall the old attributes
 			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
@@ -31,7 +174,7 @@ local function _kyle_Prop_TryUnNoclip(z)
 	end )
 end
 
-local function _kyle_Prop_Noclip(z)
+local function _kyle_Prop_Noclip_Sub(z)
 	--Exit if we are already un noclipd
 	if z:GetNWBool("_kyle_noclip") then return end
 
@@ -45,9 +188,44 @@ local function _kyle_Prop_Noclip(z)
 	z:SetRenderMode(1)
 	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
 	z:SetNWInt("_kyle_noclip", true)
+	z:SetNWInt("_kyle_unnoclip_attempt", 0)
 	
 	--Try to un noclip asap if its not a vehicle being driven by a builder
 	if not (z:IsVehicle() and z:GetDriver().buildmode) then _kyle_Prop_TryUnNoclip(z) end
+end
+
+local function _kyle_Prop_Noclip(z)
+	--simfphys and scars
+	--if we have wheels, then noclip them all
+	if z.Wheels then 
+		for aa,ab in pairs(z.Wheels) do
+			_kyle_Prop_Noclip_Sub(ab)
+		end	
+	end
+	
+	--simfphys support
+	--if are we a simfphys wheel
+	if simfphys and z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
+		local a
+		print(z)
+		--run through all the constraints to find the car
+		for aa in pairs(z.Constraints) do
+			local b, c = z.Constraints[aa]:GetConstrainedEntities()
+			if b ~= nil and simfphys.IsCar(b) then a = b break end
+		end
+		
+		--noclip the car
+		_kyle_Prop_Noclip_Sub(a)
+
+		--noclip all the wheels (including ourself)
+		for aa,ab in pairs(a.Wheels) do
+			_kyle_Prop_Noclip_Sub(ab)
+		end	
+		
+		return --we already noclipped ourself
+	end
+		
+	_kyle_Prop_Noclip_Sub(z)
 end
 
 local function _kyle_Buildmode_Enable(z)
@@ -180,18 +358,23 @@ end)
 
 hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)
 	if not SERVER then return end
+	
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", true)
 		_kyle_Prop_Noclip(z)
 	end
-		
-	if IsValid(z) and (not z:IsPlayer()) and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then 
+	
+	if IsValid(z) and not z:IsPlayer() and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then 
 		z:SetNWBool("Physgunned", true)
 		_kyle_Prop_Noclip(z)
 	end
+	
+	--entitydata(z) 
 end, HOOK_MONITOR_LOW )
 
 hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
+	if not SERVER then return end
+	
 	if IsValid(z) and (not z:IsPlayer()) and y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then 
 		z:SetNWBool("Physgunned", false)
 		
@@ -199,7 +382,7 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 		z:SetPos(z:GetPos())
 	end
 	
-	if IsValid(z) and (not z:IsPlayer()) and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then 
+	if IsValid(z) and (not z:IsPlayer()) and not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
 		z:SetNWBool("Physgunned", false)
 		
 		--Kill the prop's velocity so it can not be thrown
@@ -376,24 +559,30 @@ local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply
 	end
 	if not calling_ply.buildmode and not should_revoke and not calling_ply:GetNWBool("kylependingbuildchange") then
 		if _Kyle_Buildmode["builddelay"]!="0" then
-			calling_ply:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..tonumber(_Kyle_Buildmode["builddelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
+			local delay = tonumber(_Kyle_Buildmode["builddelay"])
+			calling_ply:SendLua("GAMEMODE:AddNotify(\"Enabling Buildmode in "..delay.." seconds.\",NOTIFY_GENERIC, 5)")
 			calling_ply:SetNWBool("kylependingbuildchange", true)
-			timer.Simple(tonumber(_Kyle_Buildmode["builddelay"]), function() 
+			ulx.fancyLogAdmin(calling_ply, "#A entering Buildmode in "..delay.." seconds.")
+			timer.Simple(delay, function() 
 					_kyle_Buildmode_Enable(calling_ply) 
 					calling_ply:SetNWBool("kylependingbuildchange", false)
-				end)
+					ulx.fancyLogAdmin(calling_ply, "#A entered Buildmode")
+			end)
 		else
 			_kyle_Buildmode_Enable(calling_ply)
 			ulx.fancyLogAdmin(calling_ply, "#A entered Buildmode")
 		end
 	elseif calling_ply.buildmode and should_revoke and not calling_ply:GetNWBool("kylependingbuildchange") then
 		if _Kyle_Buildmode["pvpdelay"]!="0" then
-			calling_ply:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..tonumber(_Kyle_Buildmode["pvpdelay"]).." seconds.\",NOTIFY_GENERIC, 5)")
-				calling_ply:SetNWBool("kylependingbuildchange", true)
-				timer.Simple(tonumber(_Kyle_Buildmode["pvpdelay"]), function()
+			local delay = tonumber(_Kyle_Buildmode["pvpdelay"])
+			calling_ply:SendLua("GAMEMODE:AddNotify(\"Disabling Buildmode in "..delay.." seconds.\",NOTIFY_GENERIC, 5)")
+			ulx.fancyLogAdmin(calling_ply, "#A exiting Buildmode in "..delay.." seconds.")
+			calling_ply:SetNWBool("kylependingbuildchange", true)
+			timer.Simple(delay, function()
 				_kyle_Buildmode_Disable(calling_ply)
 				calling_ply:SetNWBool("kylependingbuildchange", false)
-					end)
+				ulx.fancyLogAdmin(calling_ply, "#A exited Buildmode")
+			end)
 		else
 			_kyle_Buildmode_Disable(calling_ply)
 			ulx.fancyLogAdmin(calling_ply, "#A exited Buildmode")
@@ -411,9 +600,9 @@ local kylebuildmodeadmin = ulx.command("_Kyle_1", "ulx fbuild", function( callin
 		if calling_ply == z and _Kyle_Buildmode["persistpvp"]=="1" then
 			z:SetNWBool("_Kyle_pvpoverride", not should_revoke)
 		end
-        if not z.buildmode and not should_revoke and not z:GetNWBool("kylependingbuildchange") then
+        if not z.buildmode and not should_revoke then
 			_kyle_Buildmode_Enable(z)
-        elseif z.buildmode and should_revoke and not z:GetNWBool("kylependingbuildchange") then
+        elseif z.buildmode and should_revoke then
 			_kyle_Buildmode_Disable(z)
         end
         table.insert(affected_plys, z)
