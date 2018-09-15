@@ -175,6 +175,8 @@ local function _kyle_Prop_TryUnNoclip(z)
 end
 
 local function _kyle_Prop_Noclip_Sub(z)
+	if not IsEntity(z) then return end
+
 	--Exit if we are already un noclipd
 	if z:GetNWBool("_kyle_noclip") then return end
 
