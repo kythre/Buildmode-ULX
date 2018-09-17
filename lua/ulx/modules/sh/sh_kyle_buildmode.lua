@@ -209,7 +209,7 @@ local function _kyle_Prop_TryUnNoclip(z)
 			z:SetNWInt("_kyle_unnoclip_attempt", 0)
 
 		else
-			print(z, reason)
+			--print(z, reason)
 			--entitydata(z)
 			--if it fails, try again
 			_kyle_Prop_TryUnNoclip(z)
