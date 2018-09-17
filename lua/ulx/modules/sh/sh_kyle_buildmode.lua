@@ -1,4 +1,5 @@
 local function entitydata(z) 
+	print("Me", z)
 	print("Owner", z:GetOwner())
 	print("Class", z:GetClass())
 	print("Model", z:GetModel())
@@ -14,160 +15,202 @@ local function entitydata(z)
 	PrintTable(z:GetTable())
 	print("GetAttachments")
 	PrintTable(z:GetAttachments())
+	print()
 end
 
 local function _kyle_Prop_TryUnNoclip(z)	
-	timer.Simple(0.5, function() 
+	timer.Simple(0.5, function() 	
 		--Exit if the prop stops existing or isnt noclipped or has already attempted unnoclipping for too long
-		if not (z:IsValid() and z:GetNWBool("_kyle_noclip") and z:GetNWInt("_kyle_unnoclip_attempt", 0) < 100) then return end
-		
+		if not (z:IsValid() and z.buildnoclipped and z:GetNWInt("_kyle_unnoclip_attempt", 0) < 100) then 
+			z:SetNWInt("_kyle_unnoclip_attempt", 0)
+			return 
+		end
 		z:SetNWInt("_kyle_unnoclip_attempt", z:GetNWInt("_kyle_unnoclip_attempt", 0)+1)
 		
-		--Check to see if there is anything inside the props bounds
-		local a,b = z:GetCollisionBounds()
-		local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
-		--if d then keep us noclipped because there is a entity inside us
 		local d = false
-		for aa,ab in pairs(c) do
-			--if e then ignore this blocking entity
-			local e = false
+		local reason = ""
 		
-			if z == ab	then
-				e = true
-			end
+		if z:IsVehicle() and z:GetDriver().buildmode then
+			d = true 
+			reason = reason .. " driver in buildmode;"
+		end
+		
+		if z:GetVelocity():Length() > 2 then
+			d = true
+			reason = reason .. " entity velocity too high: ".. z:GetVelocity():Length() ..";"
+		end
+
+		if z:GetNWBool("Physgunned") then
+			d = true
+			reason = reason .. " entity physgunned;" 
+		end
+		
+		if z:GetParent():GetNWBool("Physgunned") then
+			d =true
+			reason = reason .. " entity parent physgunned;" 
+		end
+		
+		if IsValid(z.buildparent) and z.buildparent.buildnoclipped then 
+			d = true
+			reason = reason .. " buildparent noclipped;"
+		end
+		
+		if IsValid(z.SCarOwner) and z.SCarOwner:GetNWBool("Physgunned") then 
+			d = true
+			reason = reason .. " scar owner physgunned;"
+		end
+
+		if false then
+			d = d or z:IsVehicle() and z:GetDriver().buildmode
+			d = d or z:GetVelocity():Length() > 1
+			d = d or z:GetNWBool("Physgunned") 
+			d = d or z:GetParent():GetNWBool("Physgunned")
+			d = d or IsValid(z.buildparent) and z.buildparent.buildnoclipped
+			d = d or IsValid(z.SCarOwner) and z.SCarOwner:GetNWBool("Physgunned") 
+		end
+		
+		--enttiy interference 
+		if not d then
+			--Check to see if there is anything inside the props bounds
+			local a,b = z:GetCollisionBounds()
+			local c = ents.FindInBox(z:LocalToWorld(a), z:LocalToWorld(b))
+			for aa,ab in pairs(c) do
+				--if e then ignore this blocking entity
+				local e = false
 			
-			if z == ab:GetOwner() then 
-				e = true
-			end
+				if not ab:IsSolid() then 
+					e = true
+				end
 			
-			if z == ab:GetParent() then 
-				e = true
-			end
-			
-			if z:GetParent() == ab then
-				e = true
-			end
-			
-			if z:IsVehicle() and ab == z:GetDriver() then
-				e = true
-			end
-			
-			--simfphys support
-			if simfphys then
-				--if we are a wheel of a the simfphys car that is blocking us
-				if simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z) then 
+				if z == ab	then
 					e = true
 				end
 				
-				--if we are a prop that is owned by a simfphys car
-				if simfphys.IsCar(ab:GetOwner()) then
+				if z == ab:GetOwner() then 
 					e = true
 				end
 				
-				--if we are a simfphys car and the blocking entity is the driver
-				if simfphys.IsCar(z) and ab == z:GetDriver()then 
-					e = true
-				end  
-		
-				--if we are a simfphys car wheel and the blocking entity is a part of our car
-				--if the blocking entity's parent is a simfphys car and we are a wheel from that car
-				if simfphys.IsCar(ab:GetParent()) and table.HasValue(ab:GetParent().Wheels, z) then 
+				if z == ab:GetParent() then 
 					e = true
 				end
-			end
+				
+				if z:GetParent() == ab then
+					e = true
+				end
+				
+				if z:IsVehicle() and ab == z:GetDriver() then
+					e = true
+				end
+				
+				if ab:GetClass() == "wac_hitdetector" then 
+					e = true 
+				end
+				
+				if ab:IsWeapon() then 
+					e = true 
+				end
 			
+				if z.Founder and z.Founder == ab.Founder then
+					e = true
+				end
+				
+				if CPPI then
+					if z:CPPIGetOwner() == ab:CPPIGetOwner() and ab:GetClass() == "prop_physics" then
+						e = true
+					end
+					
+					if z:CPPIGetOwner() and z:CPPIGetOwner() == ab.Founder then
+						e = true
+					end
+				else 
+					if z.buildOwner == ab.buildOwner and ab:GetClass() == "prop_physics" then
+						e = true
+					end
+					
+					if z.buildOwner and z.buildOwner == ab.Founder then
+						e = true
+					end
+				end
+				
+				--simfphys support
+				if simfphys then
+					--if we are a wheel of a the simfphys car that is blocking us
+					if simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z) then 
+						e = true
+					end
+					
+					--if we are a prop that is owned by a simfphys car
+					if simfphys.IsCar(ab:GetOwner()) then
+						e = true
+					end
+					
+					--if we are a simfphys car and the blocking entity is the driver
+					if simfphys.IsCar(z) and ab == z:GetDriver()then 
+						e = true
+					end  
 			
-			--SCars Support
-			--check to see if we are the parent of the blocking prop
-			if 	z == ab:GetParent().SCarOwner then
-				e = true
-			end
-			
-			--check to see if the we have any constraints on the blocking entity
-			--check e to avoid any unnecessary overhead
-			if not e and z.Constraints then
-				for aa in pairs(z.Constraints) do
-					if IsValid(z.Constraints[aa]) and z.Constraints[aa]:IsConstraint() then 
-						local a, b = z.Constraints[aa]:GetConstrainedEntities()
-						if ab == a or ab == b then
-							e = true
-							break
+					--if we are a simfphys car wheel and the blocking entity is a part of our car
+					--if the blocking entity's parent is a simfphys car and we are a wheel from that car
+					if simfphys.IsCar(ab:GetParent()) and table.HasValue(ab:GetParent().Wheels, z) then 
+						e = true
+					end
+				end
+				
+				--SCars Support
+				--check to see if we are the parent of the blocking prop
+				if 	z == ab:GetParent().SCarOwner then
+					e = true
+				end
+					
+				--check to see if the we have any constraints on the blocking entity
+				--check e to avoid any unnecessary overhead
+				if not e and z.Constraints then
+					for aa in pairs(z.Constraints) do
+						if IsValid(z.Constraints[aa]) and z.Constraints[aa]:IsConstraint() then 
+							local a, b = z.Constraints[aa]:GetConstrainedEntities()
+							if ab == a or ab == b then
+								e = true
+								break
+							end
 						end
 					end
 				end
-			end
-			
-			if not e then
-				if ab:IsPlayer()				 	then d = true end
-				if ab:IsVehicle() 					then d = true end
-				if ab:GetClass() == "prop_physics" then d = true end
-			end
-			
-			if d then 
-				--print()
-				--print(z:GetNWInt("_kyle_unnoclip_attempt", 0))
-				--print(z, ab)
-				--entitydata(ab)
-				--print(scar)
-				--print(z:GetTable()["pSeat"][1])
-				--PrintTable(ab:GetTable())
-				--print(z:GetTable()["Wheels"][1]:GetModel())
-				break
-			end
-		end	
-		
-		--If there isnt anything inside the prop, the prop is not being held by a physgun, and the prop is not moving, then un noclip
-		----if there is soemthing inside the prop, then it could get stuck
-		----if the prop is being held by a physgun, then it could be used to proppush
-		----if the prop is moving then it could smash a player when
-		d = d or z:GetNWBool("Physgunned") 
-		d = d or z:GetParent():GetNWBool("Physgunned")
-		d = d or z:GetVelocity():Length() > 1
-		
-		--simfphys support
-		if simfphys then 
-			--if we are a simfphys car then check to see if any wheels are noclipped
-			if simfphys.IsCar(z) then
-				for aa,ab in pairs(z.Wheels) do
-					d=d or ab:GetNWBool("Physgunned")
-				end	
-			--if we are a simfphys car wheel then check if the car is physgunned or if any of the other wheels are physgunned
-			elseif z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
-				--go through the consraints to find the one that is connected to a simfphys car
-				for aa in pairs(z.Constraints) do
-					local a, b = z.Constraints[aa]:GetConstrainedEntities()
-					if IsValid(a) and simfphys.IsCar(a) then 
-						d=d or a:GetNWBool("Physgunned") 
-						for aa,ab in pairs(a.Wheels) do
-							d=d or ab:GetNWBool("Physgunned") 
-						end	
-					end
+				
+				if not e then
+					d = true
+					-- if ab:IsScripted() 					then d = true end
+					-- if ab:IsPlayer()				 	then d = true end
+					-- if ab:IsVehicle() 					then d = true end
+					-- if ab:GetClass() == "prop_physics" then d = true end
 				end
-			end
-		end
-
-		--SCar support
-		if z:GetClass() == "sent_sakarias_carwheel" and false then
-			--print(z)
-			--d=d or ab:GetNWBool("Physgunned") 
-			for aa in pairs(z.Constraints) do
-				local a, b = z.Constraints[aa]:GetConstrainedEntities()
-				if IsValid(a) and simfphys.IsCar(a) then 
-					d=d or a:GetNWBool("Physgunned") 
-					for aa,ab in pairs(a.Wheels) do
-						d=d or ab:GetNWBool("Physgunned") 
-					end	
+				
+				if d then 
+					reason = reason .. " entity interference;"
+					--print()
+					--print(z:GetNWInt("_kyle_unnoclip_attempt", 0))
+					--entitydata(ab)
+					--print(scar)
+					--print(z:GetTable()["pSeat"][1])
+					--PrintTable(ab:GetTable())
+					--print(z:GetTable()["Wheels"][1]:GetModel())
+					break
 				end
-			end
+			end	
 		end
 		
+		--finally un noclip or try again
 		if not d then
 			--Recall the old attributes
 			z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], z:GetNWInt("Alpha")))
 			z:SetRenderMode(z:GetNWInt("RenderMode")) 
 			z:SetCollisionGroup(z:GetNWInt("CollisionGroup"))
-			z:SetNWInt("_kyle_noclip", false)
+			z.buildnoclipped = false
+			z.buildparent = nil
+			z:SetNWInt("_kyle_unnoclip_attempt", 0)
+
 		else
+			print(z, reason)
+			--entitydata(z)
 			--if it fails, try again
 			_kyle_Prop_TryUnNoclip(z)
 		end
@@ -175,11 +218,8 @@ local function _kyle_Prop_TryUnNoclip(z)
 end
 
 local function _kyle_Prop_Noclip_Sub(z)
-	if not IsEntity(z) then return end
-
-	--Exit if we are already un noclipd
-	if z:GetNWBool("_kyle_noclip") then return end
-
+	if not IsEntity(z) or z.buildnoclipped then return end
+		
 	--Store the old attributes (to be recalled later)
 	z:SetNWInt("RenderMode", z:GetRenderMode())
 	z:SetNWInt("Alpha", z:GetColor()["a"])
@@ -189,45 +229,92 @@ local function _kyle_Prop_Noclip_Sub(z)
 	z:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	z:SetRenderMode(1)
 	z:SetColor(Color(z:GetColor()["r"], z:GetColor()["g"], z:GetColor()["b"], 200))
-	z:SetNWInt("_kyle_noclip", true)
+	z.buildnoclipped = true
 	z:SetNWInt("_kyle_unnoclip_attempt", 0)
 	
 	--Try to un noclip asap if its not a vehicle being driven by a builder
-	if not (z:IsVehicle() and z:GetDriver().buildmode) then _kyle_Prop_TryUnNoclip(z) end
+	_kyle_Prop_TryUnNoclip(z)
 end
 
 local function _kyle_Prop_Noclip(z)
-	--simfphys and scars
-	--if we have wheels, then noclip them all
-	if z.Wheels then 
-		for aa,ab in pairs(z.Wheels) do
-			_kyle_Prop_Noclip_Sub(ab)
+	if (not IsEntity(z)) or z.buildnoclipped then return end
+	
+	_kyle_Prop_Noclip_Sub(z)
+
+	--noclip constrained props
+	if z.Constraints then 	
+		for aa, ab in pairs(z.Constraints) do
+			if IsValid(ab) then
+				local a, b = ab:GetConstrainedEntities()	
+				local c
+				
+				--if the consraint isnt just an entity to itself
+				--set c to the entity that isnt z
+				if a ~= b then
+					c = z==a and b or a
+				end				
+				
+				if IsValid(z.buildparent) then
+					print(z, z.buildparent, c)
+				end
+				
+				--if we found a valid entity constrained to z
+				if c and (not c:GetNWBool("Physgunned")) and (not IsValid(c.buildparent)) and not (z.buildparent == c)  then
+					c.buildparent = z
+					_kyle_Prop_Noclip(c) 
+				end
+			end
 		end	
+	else 
+		--simfphys
+		if simfphys and z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
+			local a
+
+			--run through all the constraints to find the car
+			for aa in pairs(z.Constraints) do
+				local b, c = z.Constraints[aa]:GetConstrainedEntities()
+				if b ~= nil and simfphys.IsCar(b) then a = b break end
+			end
+			
+			--noclip the car
+			_kyle_Prop_Noclip_Sub(a)
+
+			--noclip all the wheels
+			for aa,ab in pairs(a.Wheels) do
+				_kyle_Prop_Noclip_Sub(ab)
+			end	
+		end	
+		
+		if IsValid(z:GetParent()) then
+			_kyle_Prop_Noclip(z:GetParent())
+		end
 	end
 	
-	--simfphys support
-	--if are we a simfphys wheel
-	if simfphys and z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
-		local a
-		print(z)
-		--run through all the constraints to find the car
-		for aa in pairs(z.Constraints) do
-			local b, c = z.Constraints[aa]:GetConstrainedEntities()
-			if b ~= nil and simfphys.IsCar(b) then a = b break end
+	if false then 
+		--wac
+		if wac then
+			for aa, ab in pairs(z:GetTable()) do
+				if string.match(aa, "Rotor") then
+					if isentity(ab) then
+						_kyle_Prop_Noclip_Sub(ab)
+					end
+				end
+			end	
 		end
-		
-		--noclip the car
-		_kyle_Prop_Noclip_Sub(a)
-
-		--noclip all the wheels (including ourself)
-		for aa,ab in pairs(a.Wheels) do
-			_kyle_Prop_Noclip_Sub(ab)
+	
+		--SCars (scar is entowner for scar seats)
+		if IsValid(z.EntOwner) then
+			_kyle_Prop_Noclip(z.EntOwner)
 		end	
 		
-		return --we already noclipped ourself
+		--SCars (scars wheels are placed in wheels table of scar)
+		if z.Wheels then 
+			for aa,ab in pairs(z.Wheels) do
+				ab.buildparent = z
+				_kyle_Prop_Noclip_Sub(ab)
+			end
+		end
 	end
-		
-	_kyle_Prop_Noclip_Sub(z)
 end
 
 local function _kyle_Buildmode_Enable(z)
@@ -325,6 +412,10 @@ local function _kyle_builder_spawn_entity(y, z)
 end
 
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
+	if not CPPI then 
+		z.buildOwner = x
+	end
+
 	if x.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		_kyle_Prop_Noclip(z)
 	end
@@ -334,7 +425,25 @@ hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	end
 end)
 
+hook.Add("PlayerSpawnedSENT", "KylebuildmodePropKillSENT", function(y, z)
+	if not CPPI then 
+		z.buildOwner = y
+	end
+
+	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
+		_kyle_Prop_Noclip(z)
+	end
+	
+	if not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
+		_kyle_Prop_Noclip(z)
+	end
+end)
+
 hook.Add("PlayerSpawnedVehicle", "KylebuildmodePropKill", function(y, z)
+	if not CPPI then 
+		z.buildOwner = x
+	end
+	
 	if y.buildmode and _Kyle_Buildmode["antipropkill"]=="1" then
 		_kyle_Prop_Noclip(z)
 	end
@@ -350,7 +459,7 @@ hook.Add("PlayerEnteredVehicle", "KylebuildmodePropKill", function(y, z)
 	end
 	
 	if not y.buildmode and _Kyle_Buildmode["antipropkillpvper"]=="1" then
-		_kyle_Prop_Noclip(z)
+	--	_kyle_Prop_Noclip(z)
 	end
 end)
 
@@ -389,6 +498,10 @@ hook.Add("PhysgunDrop", "KylebuildmodePropKill", function(y, z)
 		
 		--Kill the prop's velocity so it can not be thrown
 		z:SetPos(z:GetPos())
+	end
+	
+	if IsValid(z) and (not z:IsPlayer()) and z.buildnoclipped then	
+		_kyle_Prop_TryUnNoclip(z)
 	end
 end)
 
@@ -449,7 +562,7 @@ hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
     end
 end)
 
-hook.Add("PlayerSpawnProp", "kylebuildmodepropspawn", function(y, z)
+hook.Add("PlayerSpawnProp", "kylebuildmoderestrictpropspawn", function(y, z)
 	if _Kyle_Buildmode["pvppropspawn"]=="0" and not y.buildmode and not y:IsAdmin() then
     	--some say that sendlua is lazy and wrong but idc
 		y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn props while in PVP.\",NOTIFY_GENERIC, 5)")
@@ -473,9 +586,9 @@ end)
 
 hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
 	if y.buildmode then return true end
-	if y:GetNWBool("_kyle_noclip") then return true end
+	if y.buildnoclipped then return true end
 	
-	if z:GetAttacker():IsValid() then
+	if IsValid(z:GetAttacker()) then
 		if z:GetAttacker():IsPlayer() and z:GetAttacker().buildmode then 
 			return true
 		end
@@ -483,9 +596,17 @@ hook.Add("EntityTakeDamage", "kyleBuildmodeTryTakeDamage", function(y, z)
 		if z:GetAttacker().Owner and z:GetAttacker().Owner.buildmode then 
 			return true
 		end
+		
+		if simfphys and simfphys.IsCar(z:GetAttacker()) and z:GetAttacker():GetDriver().buildmode or z:GetAttacker().buildnoclipped then
+			return true
+		end
+		
+		if z:GetAttacker().buildnoclipped then
+			return true
+		end
 	end
 	
-	if z:GetInflictor():IsValid() then
+	if IsValid(z:GetInflictor()) then
 		if z:GetInflictor().Owner and z:GetInflictor().Owner.buildmode then 
 			return true
 		end
