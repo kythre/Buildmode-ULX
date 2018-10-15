@@ -21,7 +21,7 @@ local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrcit we
 local check_restrcitsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrcit SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
 local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=45, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
 local check_allownoclip 				= xlib.makecheckbox{ x=5, y=65, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
-local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Propkill in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
+local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Builders from Propkilling", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
 local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=105, label="Highlight Builders", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightbuilders"}
 local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=125, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
 local check_highlightonlywhenlooking	= xlib.makecheckbox{ x=5, y=145, label="Highlight Only When Looking", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightonlywhenlooking"}
@@ -41,6 +41,8 @@ number_pvpdelay.OnValueChanged 			= function(y, z)
 local panel_extras						=	xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
 local check_adminbypass					= xlib.makecheckbox{ x=5,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_extras, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
 local check_pvpantipropkill				= xlib.makecheckbox{ x=5,y=25, label="Prevent PVPers from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkillpvper"}
+local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=45, label="Prevent Builders from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
+
 
 										
 										
