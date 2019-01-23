@@ -387,11 +387,25 @@ local function _kyle_Buildmode_Disable(z)
 	end
 end
 
+local function hasValue (tbl, value)
+	if table.HasValue(tbl, value) then return true end
+
+	for k,v in pairs(tbl) do
+		if string.find(v, "*") then
+			if string.match(value, "^(" .. string.sub(v, 1, -2) .. ")" ) then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 local function _kyle_builder_spawn_weapon(y, z)
 	local restrictweapons = _Kyle_Buildmode["restrictweapons"]=="1" and y.buildmode
 
 	if restrictweapons then 
-		local restrictionmet = (_Kyle_Buildmode["weaponlistmode"]=="0") == table.HasValue(_Kyle_Buildmode["buildloadout"], z)
+		local restrictionmet = (_Kyle_Buildmode["weaponlistmode"]=="0") == hasValue(_Kyle_Buildmode["buildloadout"], z)
 		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
 		return restrictionmet or adminbypass
 	else
@@ -403,7 +417,7 @@ local function _kyle_builder_spawn_entity(y, z)
 	local restrictsents = _Kyle_Buildmode["restrictsents"]=="1" and y.buildmode
 	
 	if restrictsents then 
-		local restrictionmet = (_Kyle_Buildmode["entitylistmode"]=="0") == table.HasValue(_Kyle_Buildmode["builderentitylist"], z)
+		local restrictionmet = (_Kyle_Buildmode["entitylistmode"]=="0") == hasValue(_Kyle_Buildmode["builderentitylist"], z)
 		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
 		return restrictionmet or adminbypass
 	else

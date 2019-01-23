@@ -97,11 +97,7 @@ concommand.Add("kylebuildmode", function( x, y, z )
 		
 	if (x:IsValid() and x:query( "kylebuildmodesettings" )) then
 		if z[1]=="addweapon" then
-			if weapons.Get(z[2]) then
-				table.insert(_Kyle_Buildmode["buildloadout"], z[2])
-			else
-				x:SendLua("GAMEMODE:AddNotify(\"Invalid SWEP. Could not add to list.\",NOTIFY_ERROR, 5)")
-			end
+			table.insert(_Kyle_Buildmode["buildloadout"], z[2])
 		elseif z[1]=="removeweapon" then
 			table.RemoveByValue( _Kyle_Buildmode["buildloadout"], z[2] )
 		elseif z[1]=="addentity" then
