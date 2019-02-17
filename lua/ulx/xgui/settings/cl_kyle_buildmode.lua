@@ -17,15 +17,17 @@ number_buildmodedelay.OnValueChanged	= function(y, z)
 										end
 --"While IN Buildmdode" Panel
 local panel_whilein 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
-local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrcit weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
-local check_restrcitsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrcit SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
-local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=45, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
-local check_allownoclip 				= xlib.makecheckbox{ x=5, y=65, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
-local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=85, label="Prevent Builders from Propkilling", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
-local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=105, label="Highlight Builders", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightbuilders"}
-local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=125, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
-local check_highlightonlywhenlooking	= xlib.makecheckbox{ x=5, y=145, label="Highlight Only When Looking", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightonlywhenlooking"}
-local check_showtextstatus				= xlib.makecheckbox{ x=5, y=165, label="Show Text Status", parent=panel_whilein, repconvar="rep_kylebuildmode_showtextstatus"}
+local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrict weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
+local check_restrictsents 				= xlib.makecheckbox{ x=5, y=25, label="Restrict SENTs with 'Builder SENTs'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictsents"}
+local check_restrictvehicles				= xlib.makecheckbox{ x=5, y=45, label="Restrict Vehicles with 'Builder Vehicles'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictvehicles"}
+local check_restrictvehicleentry				= xlib.makecheckbox{ x=5, y=65, label="Restrict Vehicle Entry with 'Builder Vehicles'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictvehicleentry"}
+local check_disablepropspawn			= xlib.makecheckbox{ x=5, y=85, label="Allow Prop Spawn in PVP", parent=panel_whilein, repconvar="rep_kylebuildmode_pvppropspawn"}
+local check_allownoclip 				= xlib.makecheckbox{ x=5, y=105, label="Allow Noclip in Buildmode", parent=panel_whilein, repconvar="rep_kylebuildmode_allownoclip"}
+local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=125, label="Prevent Builders from Propkilling", parent=panel_whilein, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
+local check_highlightbuilders 			= xlib.makecheckbox{ x=5, y=145, label="Highlight Builders", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightbuilders"}
+local check_highlightpvpers 			= xlib.makecheckbox{ x=5, y=165, label="Highlight PVPers", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightpvpers"}
+local check_highlightonlywhenlooking	= xlib.makecheckbox{ x=5, y=185, label="Highlight Only When Looking", parent=panel_whilein, repconvar="rep_kylebuildmode_highlightonlywhenlooking"}
+local check_showtextstatus				= xlib.makecheckbox{ x=5, y=205, label="Show Text Status", parent=panel_whilein, repconvar="rep_kylebuildmode_showtextstatus"}
 
 --"Exiting Buildmdode" Panel
 local panel_exiting 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
@@ -48,6 +50,7 @@ local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=45, label="Prevent Bu
 										
 --"Advanced Settings" Panel
 local panel_advanced					= xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
+
 local panel_builderweapon 				= xlib.makepanel{ x=5, y=150, w=130, h=170, parent=panel_advanced}
 local list_builderweapons 				= xlib.makelistview{ x=0, y=0, w=130, h=125, parent=panel_builderweapon }
 local button_addremoveweapon 			= xlib.makebutton{x=105, y=125, w=25, h=25,  parent=panel_builderweapon, label="+", disabled=true }
@@ -78,54 +81,94 @@ text_weaponenter.OnEnter 				= function()
 											end
 										end
 text_weaponenter.OnChange 				= function()
-											button_addremoveweapon:SetText("+")
-											button_addremoveweapon.a = true
-											
-											if text_weaponenter:GetValue() then
-												button_addremoveweapon:SetDisabled(false)
-											else
-												button_addremoveweapon:SetDisabled(true)
-											end
-										end
+	button_addremoveweapon:SetText("+")
+	button_addremoveweapon.a = true
+
+	if text_weaponenter:GetValue() then
+		button_addremoveweapon:SetDisabled(false)
+	else
+		button_addremoveweapon:SetDisabled(true)
+	end
+end
+
 local panel_builderentities 			= xlib.makepanel{ x=140, y=150, w=130, h=170, parent=panel_advanced}
 local list_builderentities 				= xlib.makelistview{ x=0, y=0, w=130, h=125, parent=panel_builderentities }
 local button_addremoveentity 			= xlib.makebutton{x=105, y=125, w=25, h=25,  parent=panel_builderentities, label="+", disabled=true }
 local text_entityenter 					= xlib.maketextbox{x=0, y=125, w=105, h=25, parent=panel_builderentities}
-local check_weaponlisttype 				= xlib.makecheckbox{ x=0, y=153, label="List is a Blacklist", parent=panel_builderentities, repconvar="rep_kylebuildmode_entitylistmode"}
+local check_entitylisttype 				= xlib.makecheckbox{ x=0, y=153, label="List is a Blacklist", parent=panel_builderentities, repconvar="rep_kylebuildmode_entitylistmode"}
 list_builderentities:AddColumn( "Builder SENTs" )
-list_builderentities.OnRowSelected		= function()
-											button_addremoveentity:SetText("-")
-											button_addremoveentity.a = false
-											button_addremoveentity:SetDisabled(false)
-										end
-button_addremoveentity.DoClick 			= function()
-											if button_addremoveentity.a then
-												RunConsoleCommand( "kylebuildmode", "addentity",  text_entityenter:GetValue())
-												text_entityenter:SetValue("")
-											else
-												if list_builderentities:GetSelected()[1]:GetColumnText(1) then
-													RunConsoleCommand("kylebuildmode", "removeentity",  list_builderentities:GetSelected()[1]:GetColumnText(1))
-												end
-											end
+list_builderentities.OnRowSelected = function()
+	button_addremoveentity:SetText("-")
+	button_addremoveentity.a = false
+	button_addremoveentity:SetDisabled(false)
+end
+button_addremoveentity.DoClick = function()
+	if button_addremoveentity.a then
+		RunConsoleCommand( "kylebuildmode", "addentity",  text_entityenter:GetValue())
+		text_entityenter:SetValue("")
+	else
+		if list_builderentities:GetSelected()[1]:GetColumnText(1) then
+			RunConsoleCommand("kylebuildmode", "removeentity",  list_builderentities:GetSelected()[1]:GetColumnText(1))
+		end
+	end
+	button_addremoveentity:SetDisabled(true)
+end
+text_entityenter.OnEnter = function()
+	if text_entityenter:GetValue() then
+		RunConsoleCommand("kylebuildmode", "removeentity", text_entityenter:GetValue())
+		button_addremoveentity:SetDisabled(true)
+	end
+end
+text_entityenter.OnChange = function()
+	button_addremoveentity:SetText("+")
+	button_addremoveentity.a = true
 
-											button_addremoveentity:SetDisabled(true)
-										end
-text_entityenter.OnEnter				= function()
-											if text_entityenter:GetValue() then
-												RunConsoleCommand("kylebuildmode", "removeentity", text_entityenter:GetValue())
-												button_addremoveentity:SetDisabled(true)
-											end
-										end
-text_entityenter.OnChange 				= function()
-											button_addremoveentity:SetText("+")
-											button_addremoveentity.a = true
-											
-											if text_entityenter:GetValue() then
-												button_addremoveentity:SetDisabled(false)
-											else
-												button_addremoveentity:SetDisabled(true)
-											end
-										end
+	if text_entityenter:GetValue() then
+		button_addremoveentity:SetDisabled(false)
+	else
+		button_addremoveentity:SetDisabled(true)
+	end
+end
+
+local panel_buildervehicles 			= xlib.makepanel{ x=275, y=150, w=130, h=170, parent=panel_advanced}
+local list_buildervehicles 				= xlib.makelistview{ x=0, y=0, w=130, h=125, parent=panel_buildervehicles }
+local button_addremovevehicle 			= xlib.makebutton{x=105, y=125, w=25, h=25,  parent=panel_buildervehicles, label="+", disabled=true }
+local text_vehicleenter 					= xlib.maketextbox{x=0, y=125, w=105, h=25, parent=panel_buildervehicles}
+local check_vehiclelisttype 				= xlib.makecheckbox{ x=0, y=153, label="List is a Blacklist", parent=panel_buildervehicles, repconvar="rep_kylebuildmode_vehiclelistmode"}
+list_buildervehicles:AddColumn( "Builder Vehicles" )
+list_buildervehicles.OnRowSelected = function()
+	button_addremovevehicle:SetText("-")
+	button_addremovevehicle.a = false
+	button_addremovevehicle:SetDisabled(false)
+end
+button_addremovevehicle.DoClick = function()
+	if button_addremovevehicle.a then
+		RunConsoleCommand( "kylebuildmode", "addvehicle",  text_vehicleenter:GetValue())
+		text_vehicleenter:SetValue("")
+	else
+		if list_buildervehicles:GetSelected()[1]:GetColumnText(1) then
+			RunConsoleCommand("kylebuildmode", "removevehicle",  list_buildervehicles:GetSelected()[1]:GetColumnText(1))
+		end
+	end
+	button_addremovevehicle:SetDisabled(true)
+end
+text_vehicleenter.OnEnter = function()
+	if text_vehicleenter:GetValue() then
+		RunConsoleCommand("kylebuildmode", "removevehicle", text_vehicleenter:GetValue())
+		button_addremovevehicle:SetDisabled(true)
+	end
+end
+text_vehicleenter.OnChange = function()
+	button_addremovevehicle:SetText("+")
+	button_addremovevehicle.a = true
+
+	if text_vehicleenter:GetValue() then
+		button_addremovevehicle:SetDisabled(false)
+	else
+		button_addremovevehicle:SetDisabled(true)
+	end
+end
+
 local panel_builderhalo					= xlib.makepanel{ x=5, y=0, w=130, h=150, parent=panel_advanced}
 local label_builderhalo 				= xlib.makelabel{ x=0, y=0, w=500, h=15, parent=panel_builderhalo, label="Builder Halo Color" }
 local color_builderhalo 				= xlib.makecolorpicker{ x=0, y=15, parent=panel_builderhalo }
@@ -170,9 +213,9 @@ end
 local list_categories = xlib.makelistview{ x=5, y=5, w=150, h=320, parent=b }
 list_categories:AddColumn( "Categories" )
 list_categories.Columns[1].DoClick = function() end
-list_categories:AddLine("Entering Buildmode")
-list_categories:AddLine("While In Buildmode")
-list_categories:AddLine("Exiting Buildmode")
+list_categories:AddLine("Entering")
+list_categories:AddLine("Buildmode")
+list_categories:AddLine("Exiting")
 list_categories:AddLine("Extras")
 list_categories:AddLine("Advanced")
 list_categories:AddLine("Help")
@@ -185,13 +228,20 @@ end
 
 net.Receive( "kylebuildmode_senddata", function()
 	_Kyle_Buildmode = net.ReadTable()
+
 	list_builderweapons:Clear()
 	for y,z in pairs(_Kyle_Buildmode["buildloadout"]) do
 		list_builderweapons:AddLine(z)
 	end
+
 	list_builderentities:Clear()
 	for y,z in pairs(_Kyle_Buildmode["builderentitylist"]) do
 		list_builderentities:AddLine(z)
+	end
+
+	list_buildervehicles:Clear()
+	for y,z in pairs(_Kyle_Buildmode["buildervehiclelist"]) do
+		list_buildervehicles:AddLine(z)
 	end
 	local z = string.Split( _Kyle_Buildmode["highlightbuilderscolor"],"," )
 	color_builderhalo:SetColor( Color(z[1],z[2],z[3]))
@@ -201,5 +251,3 @@ net.Receive( "kylebuildmode_senddata", function()
 	number_pvpdelay:SetValue(_Kyle_Buildmode["pvpdelay"])
 end )
 xgui.addSettingModule( "Buildmode", b, "icon16/eye.png", "kylebuildmodesettings" )
-
-

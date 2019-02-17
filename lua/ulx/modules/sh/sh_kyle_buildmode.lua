@@ -425,6 +425,17 @@ local function _kyle_builder_spawn_entity(y, z)
 	end 
 end
 
+local function _kyle_builder_spawn_vehicle(y, z)
+	local restrictvehicle = _Kyle_Buildmode["restrictvehicles"]=="1" and y.buildmode
+	if restrictvehicle then 
+		local restrictionmet = (_Kyle_Buildmode["vehiclelistmode"]=="0") == hasValue(_Kyle_Buildmode["buildervehiclelist"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end 
+end
+
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 	if not CPPI then 
 		z.buildOwner = x
@@ -566,6 +577,51 @@ hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
     if not _kyle_builder_spawn_weapon(y, string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
 		return false   
     end
+end)
+
+hook.Add("PlayerSpawnVehicle", "kylebuildmoderestrictsent", function(x, y, z, a)
+	if not _kyle_builder_spawn_vehicle(x, z) then
+       	--some say that sendlua is lazy and wrong but idc
+		x:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
+		return false
+    end
+end)
+
+hook.Add("CanPlayerEnterVehicle", "kylebuildmoderestrictsent", function(y, z)
+	if _Kyle_Buildmode["restrictvehicleentry"]=="1" and y.buildmode then 
+		if simfphys and z:GetTable()["base"] and simfphys.IsCar(z:GetTable()["base"]) then
+			z = z:GetTable()["base"]
+		end
+
+		if IsValid(z:GetParent()) then
+			z = z:GetParent()
+		end
+
+		if IsValid(z:GetTable()["EntOwner"]) then
+			z = z:GetTable()["EntOwner"]
+		end
+
+		if IsEntity(z) and z:GetTable()["VehicleName"] then
+			z = z:GetTable()["VehicleName"]
+		end
+
+		if IsEntity(z) and z:GetClass() then
+			z = z:GetClass()
+		end
+
+		-- ignore wac for now because theyre sents and not vehicles
+		if string.StartWith(z, "wac") then
+			return
+		end
+
+		local restrictionmet = (_Kyle_Buildmode["vehiclelistmode"]=="0") == hasValue(_Kyle_Buildmode["buildervehiclelist"], z	)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		if not restrictionmet and not adminbypass then
+			--some say that sendlua is lazy and wrong but idc
+			y:SendLua("GAMEMODE:AddNotify(\"You cannot enter this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
+			return false
+		end
+	end 
 end)
 
 hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
