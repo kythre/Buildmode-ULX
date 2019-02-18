@@ -331,6 +331,11 @@ local function _kyle_Buildmode_Enable(z)
 end
 
 local function _kyle_Buildmode_Disable(z)
+	local timername = "_Kyle_Buildmode_spawnprotection_" .. z:GetName()
+	if timer.Exists(timername) then
+		timer.Destroy(timername)
+	end
+
 	z.buildmode = false
 	
 	--second buildmode variable for halos and status text on hover
@@ -475,6 +480,26 @@ hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 	--z:GetNWBool("_kyle_died") makes sure that the player is spawning after an actual death and not the ulib respawn function
 	if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and not z:GetNWBool("_Kyle_pvpoverride")) or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
+	elseif (not z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
+		if tonumber(_Kyle_Buildmode["spawnprotection"])>0 then
+			z:SendLua("GAMEMODE:AddNotify(\"".._Kyle_Buildmode["spawnprotection"].." seconds of Spawn Protection enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
+			z.buildmode = true
+			z:SetNWBool("_Kyle_Buildmode", true)
+			local timername = "_Kyle_Buildmode_spawnprotection_" .. z:GetName()
+			if timer.Exists(timername) then
+				timer.Destroy(timername)
+			end
+			timer.Create(timername, _Kyle_Buildmode["spawnprotection"], 1, function()
+				z:SetNWBool("_Kyle_Buildmode", false)
+				z.buildmode = false
+				if _Kyle_Buildmode["restrictweapons"]=="1" then
+					z:ConCommand("kylebuildmode defaultloadout")
+				end
+				z:SendLua("GAMEMODE:AddNotify(\"Spawn protection ended\",NOTIFY_GENERIC, 5)")
+			end)
+		else
+
+		end
 	end
 	z:SetNWBool("_kyle_died", false)
 	
@@ -488,6 +513,12 @@ end )
 
 hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
 	z:SetNWBool("_kyle_died", true)
+	local timername = "_Kyle_Buildmode_spawnprotection_" .. z:GetName()
+	if timer.Exists(timername) then
+		z:SetNWBool("_Kyle_Buildmode", false)
+		z.buildmode = false
+		timer.Destroy(timername)
+	end
 end, HOOK_HIGH )
 
 hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
@@ -508,7 +539,7 @@ end)
 
 hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
     if not _kyle_builder_spawn_weapon(y, string.Split(string.Split(tostring(z),"][", true)[2],"]", true)[1]) then
-		return false   
+			return false   
     end
 end)
 

@@ -17,6 +17,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	xgui.addDataType( "_Kyle_Buildmode", function() end, "kylebuildmodesettings", 0, -10 )
 	
 	--Load defaults in to settings table
+	_Kyle_Buildmode["spawnprotection"] = 0
 	_Kyle_Buildmode["restrictweapons"] = 0
 	_Kyle_Buildmode["restrictsents"] = 0
 	_Kyle_Buildmode["restrictvehicles"] = 0
@@ -37,7 +38,6 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["weaponlistmode"] = 0
 	_Kyle_Buildmode["entitylistmode"] = 1
 	_Kyle_Buildmode["vehiclelistmode"] = 1
-	_Kyle_Buildmode["test"] = 1
 	_Kyle_Buildmode["highlightbuilderscolor"]= "0,128,255"
 	_Kyle_Buildmode["highlightpvperscolor"]= "255,0,0"
 	_Kyle_Buildmode["builddelay"] = 0

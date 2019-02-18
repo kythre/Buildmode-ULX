@@ -15,6 +15,16 @@ number_buildmodedelay.OnValueChanged	= function(y, z)
 												RunConsoleCommand("kylebuildmode", "set", "builddelay", z)
 											end
 										end
+local number_spawnprotection			= xlib.makenumberwang {x=5, y=70, w=35, parent=panel_entering }
+local label_spawnprotection			= xlib.makelabel{ x=number_spawnprotection.x+40, y=number_spawnprotection.y+2, w=500, h=15, parent=panel_entering, label="Spawn Protection" }
+number_spawnprotection.OnValueChanged	= function(y, z)
+											if _Kyle_Buildmode["spawnprotection"] != z then
+												RunConsoleCommand("kylebuildmode", "set", "spawnprotection", z)
+											end
+										end
+
+
+
 --"While IN Buildmdode" Panel
 local panel_whilein 					= xlib.makepanel{  x=160, y=5, w=425, h=322, parent=b}
 local check_restrictweapons				= xlib.makecheckbox{ x=5, y=5, label="Restrict weapons with 'Builder Weapons'", parent=panel_whilein, repconvar="rep_kylebuildmode_restrictweapons"}
