@@ -184,7 +184,7 @@ local function _kyle_Prop_Noclip(z)
 				end				
 				
 				if IsValid(z.buildparent) then
-					print(z, z.buildparent, c)
+					-- print(z, z.buildparent, c)
 				end
 				
 				--if we found a valid entity constrained to z
@@ -220,6 +220,80 @@ local function _kyle_Prop_Noclip(z)
 	end
 end
 
+local function hasValue (tbl, value)
+	if table.HasValue(tbl, value) then return true end
+
+	for k,v in pairs(tbl) do
+		if string.find(v, "*") then
+			if string.match(value, "^(" .. string.sub(v, 1, -2) .. ")" ) then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function _kyle_builder_spawn_weapon(y, z)
+	local restrictweapons = _Kyle_Buildmode["restrictweapons"]=="1" and y.buildmode
+
+	if restrictweapons then 
+		local restrictionmet = (_Kyle_Buildmode["weaponlistmode"]=="0") == hasValue(_Kyle_Buildmode["buildloadout"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end
+end
+
+local function _kyle_builder_spawn_entity(y, z)
+	local restrictsents = _Kyle_Buildmode["restrictsents"]=="1" and y.buildmode
+	
+	if restrictsents then 
+		local restrictionmet = (_Kyle_Buildmode["entitylistmode"]=="0") == hasValue(_Kyle_Buildmode["builderentitylist"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end 
+end
+
+local function _kyle_builder_allow_vehicle(y, z)
+	if _Kyle_Buildmode["restrictvehicles"]=="1" and y.buildmode then
+		if isentity(z) then
+			if simfphys and z:GetTable()["base"] and simfphys.IsCar(z:GetTable()["base"]) then
+				z = z:GetTable()["base"]
+			end
+
+			if IsValid(z:GetParent()) then
+				z = z:GetParent()
+			end
+
+			if IsValid(z:GetTable()["EntOwner"]) then
+				z = z:GetTable()["EntOwner"]
+			end
+
+			if IsEntity(z) and z:GetTable()["VehicleName"] then
+				z = z:GetTable()["VehicleName"]
+			end
+
+			if IsEntity(z) and z:GetClass() then
+				z = z:GetClass()
+			end
+
+			-- ignore wac for now because theyre sents and not vehicles
+			if string.StartWith(z, "wac") then
+				return true
+			end
+		end
+		local restrictionmet = (_Kyle_Buildmode["vehiclelistmode"]=="0") == hasValue(_Kyle_Buildmode["buildervehiclelist"], z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+		return restrictionmet or adminbypass
+	else
+		return true
+	end
+end
+
 local function _kyle_Buildmode_Enable(z)
 	if z:Alive() then
 		if _Kyle_Buildmode["restrictweapons"]=="1" then			
@@ -233,16 +307,21 @@ local function _kyle_Buildmode_Enable(z)
 			end
 		end
 		
+		z.buildmode = true
+		
 		--noclip their vehicle so they cant run anyone anyone over while in buildmode
 		if z:InVehicle() then
-			_kyle_Prop_Noclip(z:GetVehicle())
+			if _kyle_builder_allow_vehicle(z, z:GetVehicle()) then
+				_kyle_Prop_Noclip(z:GetVehicle())
+			else
+				z:ExitVehicle()
+				z:SendLua("GAMEMODE:AddNotify(\"You cannot enter this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
+			end
 		end
 	end
 
 	--some say that sendlua is lazy and wrong but idc
     z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
-	
-	z.buildmode = true
 	
 	--second buildmode variable for halos and status text on hover
 	z:SetNWBool("_Kyle_Buildmode", true)
@@ -288,55 +367,6 @@ local function _kyle_Buildmode_Disable(z)
 			z:ConCommand( "noclip" )
 		end
 	end
-end
-
-local function hasValue (tbl, value)
-	if table.HasValue(tbl, value) then return true end
-
-	for k,v in pairs(tbl) do
-		if string.find(v, "*") then
-			if string.match(value, "^(" .. string.sub(v, 1, -2) .. ")" ) then
-				return true
-			end
-		end
-	end
-
-	return false
-end
-
-local function _kyle_builder_spawn_weapon(y, z)
-	local restrictweapons = _Kyle_Buildmode["restrictweapons"]=="1" and y.buildmode
-
-	if restrictweapons then 
-		local restrictionmet = (_Kyle_Buildmode["weaponlistmode"]=="0") == hasValue(_Kyle_Buildmode["buildloadout"], z)
-		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
-		return restrictionmet or adminbypass
-	else
-		return true
-	end
-end
-
-local function _kyle_builder_spawn_entity(y, z)
-	local restrictsents = _Kyle_Buildmode["restrictsents"]=="1" and y.buildmode
-	
-	if restrictsents then 
-		local restrictionmet = (_Kyle_Buildmode["entitylistmode"]=="0") == hasValue(_Kyle_Buildmode["builderentitylist"], z)
-		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
-		return restrictionmet or adminbypass
-	else
-		return true
-	end 
-end
-
-local function _kyle_builder_spawn_vehicle(y, z)
-	local restrictvehicle = _Kyle_Buildmode["restrictvehicles"]=="1" and y.buildmode
-	if restrictvehicle then 
-		local restrictionmet = (_Kyle_Buildmode["vehiclelistmode"]=="0") == hasValue(_Kyle_Buildmode["buildervehiclelist"], z)
-		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
-		return restrictionmet or adminbypass
-	else
-		return true
-	end 
 end
 
 hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
@@ -482,48 +512,19 @@ hook.Add("PlayerCanPickupWeapon", "kylebuildmoderestrictswep", function(y, z)
     end
 end)
 
-hook.Add("PlayerSpawnVehicle", "kylebuildmoderestrictsent", function(x, y, z, a)
-	if not _kyle_builder_spawn_vehicle(x, z) then
-       	--some say that sendlua is lazy and wrong but idc
+hook.Add("PlayerSpawnVehicle", "kylebuildmoderestrictvehicle", function(x, y, z, a)
+	if not _kyle_builder_allow_vehicle(x, z) then
+		--some say that sendlua is lazy and wrong but idc
 		x:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
 		return false
-    end
+	end
 end)
 
-hook.Add("CanPlayerEnterVehicle", "kylebuildmoderestrictsent", function(y, z)
-	if _Kyle_Buildmode["restrictvehicleentry"]=="1" and y.buildmode then 
-		if simfphys and z:GetTable()["base"] and simfphys.IsCar(z:GetTable()["base"]) then
-			z = z:GetTable()["base"]
-		end
-
-		if IsValid(z:GetParent()) then
-			z = z:GetParent()
-		end
-
-		if IsValid(z:GetTable()["EntOwner"]) then
-			z = z:GetTable()["EntOwner"]
-		end
-
-		if IsEntity(z) and z:GetTable()["VehicleName"] then
-			z = z:GetTable()["VehicleName"]
-		end
-
-		if IsEntity(z) and z:GetClass() then
-			z = z:GetClass()
-		end
-
-		-- ignore wac for now because theyre sents and not vehicles
-		if string.StartWith(z, "wac") then
-			return
-		end
-
-		local restrictionmet = (_Kyle_Buildmode["vehiclelistmode"]=="0") == hasValue(_Kyle_Buildmode["buildervehiclelist"], z	)
-		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
-		if not restrictionmet and not adminbypass then
-			--some say that sendlua is lazy and wrong but idc
-			y:SendLua("GAMEMODE:AddNotify(\"You cannot enter this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
-			return false
-		end
+hook.Add("CanPlayerEnterVehicle", "kylebuildmoderestrictvehicleentry", function(y, z)
+	if not _kyle_builder_allow_vehicle(y, z) then
+		--some say that sendlua is lazy and wrong but idc
+		y:SendLua("GAMEMODE:AddNotify(\"You cannot enter this vehicle while in Buildmode.\",NOTIFY_GENERIC, 5)")
+		return false
 	end 
 end)
 
@@ -696,12 +697,12 @@ local kylebuildmodeadmin = ulx.command("_Kyle_1", "ulx fbuild", function( callin
 		if calling_ply == z and _Kyle_Buildmode["persistpvp"]=="1" then
 			z:SetNWBool("_Kyle_pvpoverride", not should_revoke)
 		end
-        if not z.buildmode and not should_revoke then
-			_kyle_Buildmode_Enable(z)
-        elseif z.buildmode and should_revoke then
-			_kyle_Buildmode_Disable(z)
-        end
-        table.insert(affected_plys, z)
+			if not z.buildmode and not should_revoke then
+				_kyle_Buildmode_Enable(z)
+			elseif z.buildmode and should_revoke then
+				_kyle_Buildmode_Disable(z)
+			end
+			table.insert(affected_plys, z)
 	end
 
 	if should_revoke then
