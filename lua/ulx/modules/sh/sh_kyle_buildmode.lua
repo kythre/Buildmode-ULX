@@ -29,46 +29,21 @@ local function _kyle_Prop_TryUnNoclip(z)
 		
 		local d = false
 		local reason = ""
+		local preventUnNoclip = {}
+
+		preventUnNoclip["DriverInBuildmode"] = z:IsVehicle() and z:GetDriver().buildmode 
+		preventUnNoclip["MovingTooQuickly"] = z:GetVelocity():Length() > 2
+		preventUnNoclip["Physgunned"] = z:GetNWBool("Physgunned")
+		preventUnNoclip["BuildparentNoclipped"] = IsValid(z.buildparent) and z.buildparent.buildnoclipped
+		preventUnNoclip["SCarParentNoclipped"] = IsValid(z.SCarOwner) and z.SCarOwner:GetNWBool("Physgunned")
 		
-		if z:IsVehicle() and z:GetDriver().buildmode then
-			d = true 
-			reason = reason .. " driver in buildmode;"
-		end
-		
-		if z:GetVelocity():Length() > 2 then
-			d = true
-			reason = reason .. " entity velocity too high: ".. z:GetVelocity():Length() ..";"
+		for i, bool in pairs(preventUnNoclip) do
+			d = d or bool
+			if bool then
+				reason = reason .. i .. ";"
+			end
 		end
 
-		if z:GetNWBool("Physgunned") then
-			d = true
-			reason = reason .. " entity physgunned;" 
-		end
-		
-		if z:GetParent():GetNWBool("Physgunned") then
-			d =true
-			reason = reason .. " entity parent physgunned;" 
-		end
-		
-		if IsValid(z.buildparent) and z.buildparent.buildnoclipped then 
-			d = true
-			reason = reason .. " buildparent noclipped;"
-		end
-		
-		if IsValid(z.SCarOwner) and z.SCarOwner:GetNWBool("Physgunned") then 
-			d = true
-			reason = reason .. " scar owner physgunned;"
-		end
-
-		if false then
-			d = d or z:IsVehicle() and z:GetDriver().buildmode
-			d = d or z:GetVelocity():Length() > 1
-			d = d or z:GetNWBool("Physgunned") 
-			d = d or z:GetParent():GetNWBool("Physgunned")
-			d = d or IsValid(z.buildparent) and z.buildparent.buildnoclipped
-			d = d or IsValid(z.SCarOwner) and z.SCarOwner:GetNWBool("Physgunned") 
-		end
-		
 		--enttiy interference 
 		if not d then
 			--Check to see if there is anything inside the props bounds
@@ -77,91 +52,50 @@ local function _kyle_Prop_TryUnNoclip(z)
 			for aa,ab in pairs(c) do
 				--if e then ignore this blocking entity
 				local e = false
-			
-				if not ab:IsSolid() then 
-					e = true
-				end
-			
+
 				if z == ab	then
 					e = true
 				end
-				
-				if z == ab:GetOwner() then 
-					e = true
-				end
-				
-				if z == ab:GetParent() then 
-					e = true
-				end
-				
-				if z:GetParent() == ab then
-					e = true
-				end
-				
-				if z:IsVehicle() and ab == z:GetDriver() then
-					e = true
-				end
-				
-				if ab:GetClass() == "wac_hitdetector" then 
-					e = true 
-				end
-				
-				if ab:IsWeapon() then 
-					e = true 
-				end
-			
-				if z.Founder and z.Founder == ab.Founder then
-					e = true
-				end
-				
+
+				local ignoreCheck = {}
+
+				ignoreCheck["IsntSolid"] = not ab:IsSolid()
+				ignoreCheck["IsParentCheckChildParent"] = z:GetParent() == ab
+				ignoreCheck["IsParentCheckChildOwner"] = z:GetOwner() == ab
+				ignoreCheck["IsChildCheckChildOnwer"] = z == ab:GetOwner()
+				ignoreCheck["IsChildCheckChilldParent"] = z == ab:GetParent()
+				ignoreCheck["IsDriver"] = z:IsVehicle() and ab == z:GetDriver() 
+				ignoreCheck["IsWacHitDetector"] = ab:GetClass() == "wac_hitdetector"
+				ignoreCheck["IsWeapon"] = ab:IsWeapon()
+				ignoreCheck["CommonFounder"] = z.Founder and z.Founder == ab.Founder
+				--SCars Support
+				--check to see if we are the parent of the blocking prop
+				ignoreCheck["IsSCarChild"] = z == ab:GetParent().SCarOwner
+
 				if CPPI then
-					if z:CPPIGetOwner() == ab:CPPIGetOwner() and ab:GetClass() == "prop_physics" then
-						e = true
-					end
-					
-					if z:CPPIGetOwner() and z:CPPIGetOwner() == ab.Founder then
-						e = true
-					end
-				else 
-					if z.buildOwner == ab.buildOwner and ab:GetClass() == "prop_physics" then
-						e = true
-					end
-					
-					if z.buildOwner and z.buildOwner == ab.Founder then
-						e = true
-					end
+			--		ignoreCheck["CommonCPPIOwner"] = z:CPPIGetOwner() == ab:CPPIGetOwner() and ab:GetClass() == "prop_physics"
+			--		ignoreCheck["CommonBuildOwner"] = z.buildOwner == ab.buildOwner and ab:GetClass() == "prop_physics"
+					ignoreCheck["CommonFounder-CPPIOwner"] = z:CPPIGetOwner() and z:CPPIGetOwner() == ab.Founder
+					ignoreCheck["CommonFounder-BuildOwner"] = z.buildOwner and z.buildOwner == ab.Founder
 				end
-				
+
 				--simfphys support
 				if simfphys then
 					--if we are a wheel of a the simfphys car that is blocking us
-					if simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z) then 
-						e = true
-					end
-					
+					ignoreCheck["IsSimfphysCarWhileSimfphysWheel"] = simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z)
 					--if we are a prop that is owned by a simfphys car
-					if simfphys.IsCar(ab:GetOwner()) then
-						e = true
-					end
-					
+					ignoreCheck["IsSimfphysCarChild"] = simfphys.IsCar(ab:GetOwner())
 					--if we are a simfphys car and the blocking entity is the driver
-					if simfphys.IsCar(z) and ab == z:GetDriver()then 
-						e = true
-					end  
-			
+					ignoreCheck["IsDriverWhileSimfphysCar"] = simfphys.IsCar(z) and ab == z:GetDriver()
 					--if we are a simfphys car wheel and the blocking entity is a part of our car
 					--if the blocking entity's parent is a simfphys car and we are a wheel from that car
-					if simfphys.IsCar(ab:GetParent()) and table.HasValue(ab:GetParent().Wheels, z) then 
-						e = true
-					end
+					ignoreCheck["IsCarPartWhileSimfphysWheel"] = simfphys.IsCar(ab:GetParent()) and table.HasValue(ab:GetParent().Wheels, z)
 				end
 				
-				--SCars Support
-				--check to see if we are the parent of the blocking prop
-				if 	z == ab:GetParent().SCarOwner then
-					e = true
+				for i, bool in pairs(ignoreCheck) do
+					e = e or bool
 				end
-					
+
 				--check to see if the we have any constraints on the blocking entity
 				--check e to avoid any unnecessary overhead
 				if not e and z.Constraints then
@@ -176,24 +110,20 @@ local function _kyle_Prop_TryUnNoclip(z)
 					end
 				end
 				
-				if not e then
+				if not e then 
+					reason = reason .. ab:GetClass() .. " entity interference;"
 					d = true
-					-- if ab:IsScripted() 					then d = true end
-					-- if ab:IsPlayer()				 	then d = true end
-					-- if ab:IsVehicle() 					then d = true end
-					-- if ab:GetClass() == "prop_physics" then d = true end
-				end
-				
-				if d then 
-					reason = reason .. " entity interference;"
 					--print()
 					--print(z:GetNWInt("_kyle_unnoclip_attempt", 0))
-					--entitydata(ab)
+					--entitydata(z)
 					--print(scar)
 					--print(z:GetTable()["pSeat"][1])
 					--PrintTable(ab:GetTable())
 					--print(z:GetTable()["Wheels"][1]:GetModel())
 					break
+				else
+				--	print(ab)
+				--	PrintTable(ignoreCheck)
 				end
 			end	
 		end
@@ -207,7 +137,6 @@ local function _kyle_Prop_TryUnNoclip(z)
 			z.buildnoclipped = false
 			z.buildparent = nil
 			z:SetNWInt("_kyle_unnoclip_attempt", 0)
-
 		else
 			--print(z, reason)
 			--entitydata(z)
@@ -287,32 +216,6 @@ local function _kyle_Prop_Noclip(z)
 		
 		if IsValid(z:GetParent()) then
 			_kyle_Prop_Noclip(z:GetParent())
-		end
-	end
-	
-	if false then 
-		--wac
-		if wac then
-			for aa, ab in pairs(z:GetTable()) do
-				if string.match(aa, "Rotor") then
-					if isentity(ab) then
-						_kyle_Prop_Noclip_Sub(ab)
-					end
-				end
-			end	
-		end
-	
-		--SCars (scar is entowner for scar seats)
-		if IsValid(z.EntOwner) then
-			_kyle_Prop_Noclip(z.EntOwner)
-		end	
-		
-		--SCars (scars wheels are placed in wheels table of scar)
-		if z.Wheels then 
-			for aa,ab in pairs(z.Wheels) do
-				ab.buildparent = z
-				_kyle_Prop_Noclip_Sub(ab)
-			end
 		end
 	end
 end
