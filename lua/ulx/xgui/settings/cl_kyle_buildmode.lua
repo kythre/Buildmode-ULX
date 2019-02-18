@@ -41,7 +41,7 @@ number_pvpdelay.OnValueChanged 			= function(y, z)
 										end
 --"Extras" Panel
 local panel_extras						=	xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}
-local check_adminbypass					= xlib.makecheckbox{ x=5,y=5, label="Admins Bypass Spawn Restrictions", parent=panel_extras, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
+local check_adminbypass					= xlib.makecheckbox{ x=5,y=5, label="Admins Bypass Restrictions", parent=panel_extras, repconvar="rep_kylebuildmode_adminsbypassrestrictions"}
 local check_pvpantipropkill				= xlib.makecheckbox{ x=5,y=25, label="Prevent PVPers from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkillpvper"}
 local check_preventpropkill 			= xlib.makecheckbox{ x=5, y=45, label="Prevent Builders from Propkilling", parent=panel_extras, repconvar="rep_kylebuildmode_antipropkill", disabled=false}
 
