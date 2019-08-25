@@ -659,7 +659,7 @@ end)
 hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 	if _Kyle_Buildmode["showtextstatus"]=="1" then
 		local z = LocalPlayer():GetEyeTrace().Entity
-		if z:IsPlayer() and z:Alive() then
+		if z:IsValid() and z:IsPlayer() and z:Alive() then
 		
 			local x,y = gui.MousePos()
 			y=y+ScrH()*0.07414
