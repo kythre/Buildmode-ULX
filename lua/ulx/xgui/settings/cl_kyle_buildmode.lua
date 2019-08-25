@@ -8,20 +8,16 @@ local b = xlib.makepanel{ parent=xgui.null }
 	1 - numberwang
 ]]
 
-
-
-panels = {
+local panels = {
 	{ --panel_entering
-		xlib.makepanel{x=160, y=5, w=425, h=322, parent=b},
-		{
+		["panelItems"] = {
 			["spawnwithbuildmode"] = 				{0, "Players Spawn with Buildmode"},
 			["persistpvp"] = 						{0, "Override the above if the player enables PVP"},
 			["builddelay"] = 						{1, "Buildmode Delay"}
 		}
 	}, 
 	{ --panel_whilein
-		xlib.makepanel{x=160, y=5, w=425, h=322, parent=b},  
-		{
+		panelItems = {
 			["restrictweapons"] = 					{0, "Restrict weapons with 'Builder Weapons'"},
 			["restrictsents"] = 					{0, "Restrict SENTs with 'Builder SENTs'"},
 			["restrictvehicles"] = 					{0, "Restrict Vehicles with 'Builder Vehicles'"},
@@ -36,36 +32,66 @@ panels = {
 		}
 	},
 	{ -- panel_exiting
-		xlib.makepanel{x=160, y=5, w=425, h=322, parent=b},
-		{
+		panelItems = {
 			["returntospawn"] = 					{0, "Return Player to spawn on Buildmode exit"},
 			["pvpdelay"] = 							{1, "PVP Delay"}
 		}
 	},
 	{ -- panel_extras
-		xlib.makepanel{x=160, y=5, w=425, h=322, parent=b},
-		{
+		panelItems = {
 			["adminsbypassrestrictions"] = 			{0, "Admins Bypass Restrictions"},
 			["antipropkillpvper"] = 				{0, "Prevent PVPers from Propkilling"},
 			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"}
 		}
 	},
 	{ -- panel_advanced
-		xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}, 
 		{
 		
 		}
 	},
-		{ -- panel_help
-		xlib.makepanel{ x=160, y=5, w=425, h=322, parent=b}, 
+	{ -- panel_help 
 		{
 		
 		}
 	}
 }
 
+for k, e in pairs(panels) do
+	local y = 5
+	e["panel"] = xlib.makepanel{x=160, y=5, w=425, h=322, parent=b}
+	local panel = e["panel"]	
+	local panelItems = e["panelItems"]
+ 
+	if panelItems then
+		for k, e in pairs(panelItems) do
+			-- checkbox
+			if e[1] == 0 then
+				e["check"] = xlib.makecheckbox{ x=5, y=y, label=e[2], parent=panel, repconvar="rep_kylebuildmode_" .. k}
+			end
+			
+			-- number
+			if e[1] == 1 then
+				e["number"] = xlib.makenumberwang {x=5, y=y, w=35, parent=panel}
+				e["label"] = xlib.makelabel{ x=e["number"].x+40, y=e["number"].y+2, w=500, h=15, parent=panel, label=e[2] }
+				e["number"].OnValueChanged	= function(y, z)
+				if _Kyle_Buildmode[k] != z then
+					RunConsoleCommand("kylebuildmode", "set", k, z)
+					end
+				end
+			end
+
+			if e[1] == 3 then
+
+
+			end
+
+			y = y + 20
+		end
+	end
+end
+
 --"Advanced Settings" Panel
-local panel_advanced					= panels[5][1]
+local panel_advanced					= panels[5]["panel"]
 
 local panel_builderweapon 				= xlib.makepanel{ x=5, y=150, w=130, h=170, parent=panel_advanced}
 local list_builderweapons 				= xlib.makelistview{ x=0, y=0, w=130, h=125, parent=panel_builderweapon }
@@ -191,7 +217,6 @@ end
 local panel_builderhalo					= xlib.makepanel{ x=5, y=0, w=130, h=150, parent=panel_advanced}
 local label_builderhalo 				= xlib.makelabel{ x=0, y=0, w=500, h=15, parent=panel_builderhalo, label="Builder Halo Color" }
 local color_builderhalo 				= xlib.makecolorpicker{ x=0, y=15, parent=panel_builderhalo }
-
 local panel_pvphalo 					= xlib.makepanel{ x=140, y=0, w=130, h=150, parent=panel_advanced}
 local label_pvphalo 					= xlib.makelabel{ x=0, y=0, w=500, h=15, parent=panel_pvphalo, label="PVPer Halo Color" }
 local color_pvphalo 					= xlib.makecolorpicker{ x=0, y=15, parent=panel_pvphalo }
@@ -204,39 +229,8 @@ function color_pvphalo:OnChange( z )
 	RunConsoleCommand("kylebuildmode", "set", "highlightpvperscolor", string.sub(table.ToString(z), 2, string.len(table.ToString(z))-2))
 end
 
-for k, e in pairs(panels) do
-	local y = 5
-	local panel = panels[k]
-	for k, e in pairs(panel[2]) do
-	
-		-- checkbox
-		if e[1] == 0 then
-			e["check"] = xlib.makecheckbox{ x=5, y=y, label=e[2], parent=panel[1], repconvar="rep_kylebuildmode_" .. k}
-		end
-		
-		-- number
-		if e[1] == 1 then
-			e["number"] = xlib.makenumberwang {x=5, y=y, w=35, parent=panel[1] }
-			e["label"] = xlib.makelabel{ x=e["number"].x+40, y=e["number"].y+2, w=500, h=15, parent=panel[1], label=e[2] }
-			e["number"].OnValueChanged	= function(y, z)
-												if _Kyle_Buildmode[k] != z then
-													RunConsoleCommand("kylebuildmode", "set", k, z)
-												end
-											end
-		end
-
-
-		if e[1] == 3 then
-
-
-		end
-
-		y = y + 20
-	end
-end
-
 --"Help" Panel
-local panel_help					= panels[6][1]
+local panel_help					= panels[6]["panel"]
 local label_steam					= xlib.makelabel{ x=0, y=260, w=500, h=15, parent=panel_help, label="For questions and comments, click here:" }
 local button_steam					= xlib.makebutton{x=0, y=275, w=240, h=15,  parent=panel_help, label="http://steamcommunity.com/sharedfiles/filedetails/?id=1308900979" }
 button_steam.DoClick 				= function()
@@ -248,8 +242,8 @@ button_github.DoClick 				= function()
 										gui.OpenURL( "https://github.com/kythre/Buildmode-ULX/")
 									end
 
-for a in pairs(panels) do
-	panels[a][1]:SetVisible(false)
+for k in pairs(panels) do
+	panels[k]["panel"]:SetVisible(false)
 end
 
 local list_categories = xlib.makelistview{ x=5, y=5, w=150, h=320, parent=b }
@@ -262,10 +256,10 @@ list_categories:AddLine("Extras")
 list_categories:AddLine("Advanced")
 list_categories:AddLine("Help")
 list_categories.OnRowSelected = function(self, LineID)
-	for a in pairs(panels) do
-		panels[a][1]:SetVisible(false)
+	for k in pairs(panels) do
+		panels[k]["panel"]:SetVisible(false)
 	end
-	panels[LineID][1]:SetVisible(true)
+	panels[LineID]["panel"]:SetVisible(true)
 end
 
 net.Receive( "kylebuildmode_senddata", function()
@@ -290,7 +284,7 @@ net.Receive( "kylebuildmode_senddata", function()
 	z = string.Split( _Kyle_Buildmode["highlightpvperscolor"],"," )
 	color_pvphalo:SetColor( Color(z[1],z[2],z[3]))
 	
-	panels[1][2]["builddelay"]["number"]:SetValue(_Kyle_Buildmode["builddelay"])
-	panels[3][2]["pvpdelay"]["number"]:SetValue(_Kyle_Buildmode["pvpdelay"])
+	panels[1]["panelItems"]["builddelay"]["number"]:SetValue(_Kyle_Buildmode["builddelay"])
+	panels[3]["panelItems"]["pvpdelay"]["number"]:SetValue(_Kyle_Buildmode["pvpdelay"])
 end )
-xgui.addSettingModule( "Buildmode", b, "icon16/eye.png", "kylebuildmodesettings" )
+xgui.addSettingModule("Buildmode", b, "icon16/eye.png", "kylebuildmodesettings" )
