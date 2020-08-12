@@ -12,7 +12,7 @@ local panels = {
 	{ --panel_entering
 		["panelItems"] = {
 			["spawnwithbuildmode"] = 				{0, "Players Spawn with Buildmode"},
-			["persistpvp"] = 						{0, "Override the above if the player enables PVP"},
+			["persistpvp"] = 						{0, "Force PVP on respawn if the player died with PVP"},
 			["builddelay"] = 						{1, "Buildmode Delay"}
 		}
 	}, 
@@ -39,6 +39,7 @@ local panels = {
 	},
 	{ -- panel_extras
 		panelItems = {
+			["spawnprotection"] = 					{1, "Amount of seconds to enable Buildmode temporarily on spawn"},
 			["adminsbypassrestrictions"] = 			{0, "Admins Bypass Restrictions"},
 			["antipropkillpvper"] = 				{0, "Prevent PVPers from Propkilling"},
 			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"}
@@ -85,7 +86,11 @@ for k, e in pairs(panels) do
 
 			end
 
-			y = y + 20
+			if e[1] == 0 then
+				y = y + 20
+			elseif e[1] == 1 then
+				y = y + 25
+			end --
 		end
 	end
 end

@@ -478,10 +478,11 @@ end )
 
 hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 	--z:GetNWBool("_kyle_died") makes sure that the player is spawning after an actual death and not the ulib respawn function
-	if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and not z:GetNWBool("_Kyle_pvpoverride")) or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
+	
+	if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and not _Kyle_Buildmode["persistpvp"]=="1") or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 		_kyle_Buildmode_Enable(z)
 	elseif (not z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
-		if tonumber(_Kyle_Buildmode["spawnprotection"])>0 then
+		if tonumber(_Kyle_Buildmode["spawnprotection"])>0 and not _Kyle_Buildmode["persistpvp"]=="1" then
 			z:SendLua("GAMEMODE:AddNotify(\"".._Kyle_Buildmode["spawnprotection"].." seconds of Spawn Protection enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 			z.buildmode = true
 			z:SetNWBool("_Kyle_Buildmode", true)
@@ -508,7 +509,6 @@ end )
 
 hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
 	z:SetNWBool("_kyle_died", true)
-	z:SetNWBool("_Kyle_pvpoverride", false)
 end )
 
 hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
@@ -682,9 +682,6 @@ hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 end)
 
 local kylebuildmode = ulx.command( "_Kyle_1", "ulx build", function( calling_ply, should_revoke )
-	if _Kyle_Buildmode["persistpvp"]=="1" then
-		calling_ply:SetNWBool("_Kyle_pvpoverride", not should_revoke)
-	end
 	if not calling_ply.buildmode and not should_revoke and not calling_ply:GetNWBool("kylependingbuildchange") then
 		if _Kyle_Buildmode["builddelay"]!="0" then
 			local delay = tonumber(_Kyle_Buildmode["builddelay"])
@@ -725,15 +722,12 @@ kylebuildmode:setOpposite("ulx pvp", {_, true}, "!pvp")
 local kylebuildmodeadmin = ulx.command("_Kyle_1", "ulx fbuild", function( calling_ply, target_plys, should_revoke)
 	local affected_plys = {}
 	for y,z in pairs(target_plys) do
-		if calling_ply == z and _Kyle_Buildmode["persistpvp"]=="1" then
-			z:SetNWBool("_Kyle_pvpoverride", not should_revoke)
+		if not z.buildmode and not should_revoke then
+			_kyle_Buildmode_Enable(z)
+		elseif z.buildmode and should_revoke then
+			_kyle_Buildmode_Disable(z)
 		end
-			if not z.buildmode and not should_revoke then
-				_kyle_Buildmode_Enable(z)
-			elseif z.buildmode and should_revoke then
-				_kyle_Buildmode_Disable(z)
-			end
-			table.insert(affected_plys, z)
+		table.insert(affected_plys, z)
 	end
 
 	if should_revoke then
