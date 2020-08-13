@@ -1,6 +1,8 @@
 if not SERVER then return end
 
-ULib.ucl.registerAccess( "kylebuildmodesettings", "superadmin", "Allows managing all settings related to Buildmode.", "XGUI" )
+ULib.ucl.registerAccess( "kylebuildmodesettings", ULib.ACCESS_SUPERADMIN , "Allows managing all settings related to Buildmode.", "XGUI" )
+ULib.ucl.registerAccess( "kylebuildmodenoclip", ULib.ACCESS_ALL, "Allows user to use noclip in Buildmode.", "_Kyle_1" )
+
 
 _Kyle_Buildmode = {}
 
@@ -24,6 +26,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["restrictvehicleentry"] = 0
 	_Kyle_Buildmode["allownoclip"] = 0
 	_Kyle_Buildmode["returntospawn"] = 0
+	_Kyle_Buildmode["allownpcdamage"] = 0
 	_Kyle_Buildmode["antipropkill"] = 0
 	_Kyle_Buildmode["antipropkillpvper"] = 0
 	_Kyle_Buildmode["spawnwithbuildmode"] = 1
@@ -65,6 +68,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_spawnwithbuildmode",			"rep_kylebuildmode_spawnwithbuildmode",			_Kyle_Buildmode["spawnwithbuildmode"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_persistpvp",					"rep_kylebuildmode_persistpvp",					_Kyle_Buildmode["persistpvp"],					false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_allownoclip",				"rep_kylebuildmode_allownoclip",				_Kyle_Buildmode["allownoclip"],					false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_allownpcdamage",				"rep_kylebuildmode_allownpcdamage",				_Kyle_Buildmode["allownpcdamage"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_antipropkill",				"rep_kylebuildmode_antipropkill",				_Kyle_Buildmode["antipropkill"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_antipropkillpvper",			"rep_kylebuildmode_antipropkillpvper",			_Kyle_Buildmode["antipropkillpvper"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_pvppropspawn",				"rep_kylebuildmode_pvppropspawn",				_Kyle_Buildmode["pvppropspawn"],				false,true,"kylebuildmodesettings")
@@ -76,7 +80,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_highlightonlywhenlooking",	"rep_kylebuildmode_highlightonlywhenlooking",	_Kyle_Buildmode["highlightonlywhenlooking"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_showtextstatus",				"rep_kylebuildmode_showtextstatus",				_Kyle_Buildmode["showtextstatus"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_adminsbypassrestrictions",	"rep_kylebuildmode_adminsbypassrestrictions",	_Kyle_Buildmode["adminsbypassrestrictions"],	false,true,"kylebuildmodesettings")
-	
+
 	SaveAndSend()
 end )
 

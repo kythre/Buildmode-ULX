@@ -24,6 +24,7 @@ local panels = {
 			["restrictvehicleentry"] = 				{0, "Restrict Vehicle Entry with 'Builder Vehicles'"},
 			["pvppropspawn"] = 						{0, "Allow Prop Spawn in PVP"},
 			["allownoclip"] =			 			{0, "Allow Noclip in Buildmode"},
+			["allownpcdamage"] = 						{0, "Allow damaging NPCs while in Buildmode"},
 			["restrictwantipropkilleapons"] = 		{0, "Prevent Builders from Propkilling"},
 			["highlightbuilders"] = 				{0, "Highlight Builders"},
 			["highlightpvpers"] = 					{0, "Highlight PVPers"},
@@ -75,8 +76,8 @@ for k, e in pairs(panels) do
 				e["number"] = xlib.makenumberwang {x=5, y=y, w=35, parent=panel}
 				e["label"] = xlib.makelabel{ x=e["number"].x+40, y=e["number"].y+2, w=500, h=15, parent=panel, label=e[2] }
 				e["number"].OnValueChanged	= function(y, z)
-				if _Kyle_Buildmode[k] != z then
-					RunConsoleCommand("kylebuildmode", "set", k, z)
+					if _Kyle_Buildmode[k] != z then
+						RunConsoleCommand("kylebuildmode", "set", k, z)
 					end
 				end
 			end
@@ -291,5 +292,6 @@ net.Receive( "kylebuildmode_senddata", function()
 	
 	panels[1]["panelItems"]["builddelay"]["number"]:SetValue(_Kyle_Buildmode["builddelay"])
 	panels[3]["panelItems"]["pvpdelay"]["number"]:SetValue(_Kyle_Buildmode["pvpdelay"])
+	panels[4]["panelItems"]["spawnprotection"]["number"]:SetValue(_Kyle_Buildmode["spawnprotection"])
 end )
 xgui.addSettingModule("Buildmode", b, "icon16/eye.png", "kylebuildmodesettings" )
