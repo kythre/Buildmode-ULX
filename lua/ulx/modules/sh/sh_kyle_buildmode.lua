@@ -335,6 +335,8 @@ if SERVER then
 		
 		--boolean to say if buildmode was enabled because the player had just spawned
 		z:SetNWBool("_Kyle_BuildmodeOnSpawn", z:GetNWBool("_kyle_died"))
+
+		hook.Run ("OnPlayerSwitchModePVPBUILD", z, true)
 	end
 	
 	local function _kyle_Buildmode_Disable(z)
@@ -379,6 +381,8 @@ if SERVER then
 				z:ConCommand( "noclip" )
 			end
 		end
+		
+		hook.Run ("OnPlayerSwitchModePVPBUILD", z, false)
 	end
 
 	hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
@@ -697,7 +701,6 @@ if SERVER then
 	kylebuildmodeadmin:help("Forces Buildmode on target(s).")
 	kylebuildmodeadmin:setOpposite("ulx fpvp", {_, _, true}, "!fpvp")
 end
-
 
 hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	local w = {}
