@@ -25,6 +25,8 @@ if SERVER then
 		-- if it needs to be unnoclipped it should be noclipped in the first place right?
 		-- props are still collidable right after spawn for some reason
 		z:SetCollisionGroup(COLLISION_GROUP_WORLD)
+		-- added for when this is called when the vehicle isnt actually noclipped but this is called anyway causing the object to be noclipped forever  ?
+		z.buildnoclipped = true
 
 		timer.Simple(0.5, function() 	
 			--Exit if the prop stops existing or isnt noclipped or has already attempted unnoclipping for too long
@@ -358,7 +360,7 @@ if SERVER then
 			local pos = z:GetPos()
 			
 			--if they are in a vehicle try to un noclip their vehicle and kick them out of it if they need to return to spawn
-			if z:InVehicle() then
+			if z:InVehicle() and IsValid(z:GetVehicle()) and z:GetVehicle().buildnoclipped then
 				_kyle_Prop_TryUnNoclip(z:GetVehicle())
 				if _Kyle_Buildmode["returntospawn"]=="1" then
 					z:ExitVehicle()
@@ -441,7 +443,9 @@ if SERVER then
 	end)
 	
 	hook.Add("PlayerLeaveVehicle", "KylebuildmodePropKill", function(y, z)
-		_kyle_Prop_TryUnNoclip(z)
+		if IsValid(z) and z.buildnoclipped then
+			_kyle_Prop_TryUnNoclip(z)
+		end
 	end)
 
 	hook.Add("PhysgunPickup", "KylebuildmodePropKill", function(y, z)	
