@@ -49,6 +49,7 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	_Kyle_Buildmode["showtextstatus"] = 1
 	_Kyle_Buildmode["adminsbypassrestrictions"] = 0
 
+
 	--Load saved settings
 	local saved = {}
 	if file.Exists( "kylebuildmode.txt", "DATA" ) then
@@ -62,8 +63,8 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	
 	ULib.replicatedWritableCvar("kylebuildmode_restrictweapons",			"rep_kylebuildmode_restrictweapons",			_Kyle_Buildmode["restrictweapons"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_restrictsents",				"rep_kylebuildmode_restrictsents",				_Kyle_Buildmode["restrictsents"],				false,true,"kylebuildmodesettings")
-	ULib.replicatedWritableCvar("kylebuildmode_restrictvehicles",				"rep_kylebuildmode_restrictvehicles",				_Kyle_Buildmode["restrictvehicles"],				false,true,"kylebuildmodesettings")
-	ULib.replicatedWritableCvar("kylebuildmode_restrictvehicleentry",				"rep_kylebuildmode_restrictvehicleentry",				_Kyle_Buildmode["restrictvehicleentry"],				false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_restrictvehicles",			"rep_kylebuildmode_restrictvehicles",			_Kyle_Buildmode["restrictvehicles"],			false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_restrictvehicleentry",		"rep_kylebuildmode_restrictvehicleentry",		_Kyle_Buildmode["restrictvehicleentry"],		false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_returntospawn",				"rep_kylebuildmode_returntospawn",				_Kyle_Buildmode["returntospawn"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_spawnwithbuildmode",			"rep_kylebuildmode_spawnwithbuildmode",			_Kyle_Buildmode["spawnwithbuildmode"],			false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_persistpvp",					"rep_kylebuildmode_persistpvp",					_Kyle_Buildmode["persistpvp"],					false,true,"kylebuildmodesettings")
@@ -76,10 +77,11 @@ xgui.addSVModule( "kylebuildmode_load", function()
 	ULib.replicatedWritableCvar("kylebuildmode_highlightpvpers",			"rep_kylebuildmode_highlightpvpers",			_Kyle_Buildmode["highlightpvpers"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_weaponlistmode",				"rep_kylebuildmode_weaponlistmode",				_Kyle_Buildmode["weaponlistmode"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_entitylistmode",				"rep_kylebuildmode_entitylistmode",				_Kyle_Buildmode["entitylistmode"],				false,true,"kylebuildmodesettings")
-	ULib.replicatedWritableCvar("kylebuildmode_vehiclelistmode",				"rep_kylebuildmode_vehiclelistmode",				_Kyle_Buildmode["vehiclelistmode"],				false,true,"kylebuildmodesettings")
+	ULib.replicatedWritableCvar("kylebuildmode_vehiclelistmode",			"rep_kylebuildmode_vehiclelistmode",			_Kyle_Buildmode["vehiclelistmode"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_highlightonlywhenlooking",	"rep_kylebuildmode_highlightonlywhenlooking",	_Kyle_Buildmode["highlightonlywhenlooking"],	false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_showtextstatus",				"rep_kylebuildmode_showtextstatus",				_Kyle_Buildmode["showtextstatus"],				false,true,"kylebuildmodesettings")
 	ULib.replicatedWritableCvar("kylebuildmode_adminsbypassrestrictions",	"rep_kylebuildmode_adminsbypassrestrictions",	_Kyle_Buildmode["adminsbypassrestrictions"],	false,true,"kylebuildmodesettings")
+
 
 	SaveAndSend()
 end )

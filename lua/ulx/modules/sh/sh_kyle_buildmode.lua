@@ -87,9 +87,9 @@ if SERVER then
 						ignoreCheck["CommonFounder-CPPIOwner"] = z:CPPIGetOwner() and z:CPPIGetOwner() == ab.Founder
 						ignoreCheck["CommonFounder-BuildOwner"] = z.buildOwner and z.buildOwner == ab.Founder
 					end
-	
+
 					--simfphys support
-					if simfphys then
+					if simfphys and simfphys.IsCar then
 						--if we are a wheel of a the simfphys car that is blocking us
 						ignoreCheck["IsSimfphysCarWhileSimfphysWheel"] = simfphys.IsCar(ab) and table.HasValue(ab.Wheels, z)
 						--if we are a prop that is owned by a simfphys car
@@ -179,8 +179,33 @@ if SERVER then
 		
 		_kyle_Prop_Noclip_Sub(z)
 	
+		if IsValid(z:GetParent()) then
+			_kyle_Prop_Noclip(z:GetParent())
+		end
+	
+		--simfphys
+		if simfphys and simfphys.IsCar and z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
+
+			local a
+			--run through all the constraints to find the car
+			for aa in pairs(z.Constraints) do
+				local b, c = z.Constraints[aa]:GetConstrainedEntities()
+				if b ~= nil and simfphys.IsCar(b) then a = b break end
+			end
+			
+			--noclip the car
+			_kyle_Prop_Noclip_Sub(a)
+
+			--noclip all the wheels
+			for aa,ab in pairs(a.Wheels) do
+				_kyle_Prop_Noclip_Sub(ab)
+			end
+			
+			return
+		end	
+	
 		--noclip constrained props
-		if z.Constraints then 	
+		if z.Constraints then
 			for aa, ab in pairs(z.Constraints) do
 				if IsValid(ab) then
 					local a, b = ab:GetConstrainedEntities()	
@@ -192,9 +217,9 @@ if SERVER then
 						c = z==a and b or a
 					end				
 					
-					if IsValid(z.buildparent) then
+					-- if IsValid(z.buildparent) then
 						-- print(z, z.buildparent, c)
-					end
+					-- end
 					
 					--if we found a valid entity constrained to z
 					if c and (not c:GetNWBool("Physgunned")) and (not IsValid(c.buildparent)) and not (z.buildparent == c)  then
@@ -203,29 +228,6 @@ if SERVER then
 					end
 				end
 			end	
-		else 
-			--simfphys
-			if simfphys and z:GetClass() == "gmod_sent_vehicle_fphysics_wheel" then
-				local a
-	
-				--run through all the constraints to find the car
-				for aa in pairs(z.Constraints) do
-					local b, c = z.Constraints[aa]:GetConstrainedEntities()
-					if b ~= nil and simfphys.IsCar(b) then a = b break end
-				end
-				
-				--noclip the car
-				_kyle_Prop_Noclip_Sub(a)
-	
-				--noclip all the wheels
-				for aa,ab in pairs(a.Wheels) do
-					_kyle_Prop_Noclip_Sub(ab)
-				end	
-			end	
-			
-			if IsValid(z:GetParent()) then
-				_kyle_Prop_Noclip(z:GetParent())
-			end
 		end
 	end
 	
@@ -270,7 +272,7 @@ if SERVER then
 	local function _kyle_builder_allow_vehicle(y, z)
 		if _Kyle_Buildmode["restrictvehicles"]=="1" and y.buildmode then
 			if isentity(z) then
-				if simfphys and z:GetTable()["base"] and simfphys.IsCar(z:GetTable()["base"]) then
+				if simfphys and simfphys.IsCar and z:GetTable()["base"] and simfphys.IsCar(z:GetTable()["base"]) then
 					z = z:GetTable()["base"]
 				end
 	
@@ -625,7 +627,7 @@ if SERVER then
 				return true
 			end
 			
-			if simfphys and simfphys.IsCar(z:GetAttacker()) and z:GetAttacker():GetDriver().buildmode or z:GetAttacker().buildnoclipped then
+			if simfphys and simfphys.IsCar and simfphys.IsCar(z:GetAttacker()) and z:GetAttacker():GetDriver().buildmode or z:GetAttacker().buildnoclipped then
 				if canDamangeNPC(y) then return end
 				return true
 			end
