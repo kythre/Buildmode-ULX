@@ -43,7 +43,7 @@ local panels = {
 			["spawnprotection"] = 					{1, "Amount of seconds to enable Buildmode temporarily on spawn"},
 			["adminsbypassrestrictions"] = 			{0, "Admins Bypass Restrictions"},
 			["antipropkillpvper"] = 				{0, "Prevent PVPers from Propkilling"},
-			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"},
+			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"}
 		}
 	},
 	{ -- panel_advanced
