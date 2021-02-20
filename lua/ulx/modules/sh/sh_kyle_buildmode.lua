@@ -711,12 +711,12 @@ end
 hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 	local w = {}
 	local x = {}
-
+	
 	if _Kyle_Buildmode["highlightonlywhenlooking"]=="0" then
 		local z = {}
 		for y,z in pairs(player.GetAll()) do
-			if z:Alive() then
-				if z:GetNWBool("_Kyle_Buildmode") then
+			if z:Alive() and z:GetRenderMode() != RENDERMODE_TRANSALPHA  then
+				if z:GetNWBool("_Kyle_Buildmode")then
 					table.insert(w, z)
 				else
 					table.insert(x, z)
@@ -725,7 +725,7 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 		end
 	else	
 		local z = LocalPlayer():GetEyeTrace().Entity
-		if z:IsPlayer() and z:Alive() then
+		if z:Alive() and z:GetRenderMode() != RENDERMODE_TRANSALPHA then
 			if z:GetNWBool("_Kyle_Buildmode") then
 				table.insert(w, z)
 			else
@@ -749,7 +749,7 @@ end)
 hook.Add("HUDPaint", "KyleBuildehudpaint", function()
 	if _Kyle_Buildmode["showtextstatus"]=="1" then
 		local z = LocalPlayer():GetEyeTrace().Entity
-		if z:IsValid() and z:IsPlayer() and z:Alive() then
+		if z:IsValid() and z:IsPlayer() and z:Alive() and z:GetRenderMode() != RENDERMODE_TRANSALPHA then
 		
 			local x,y = gui.MousePos()
 			y=y+ScrH()*0.07414
