@@ -725,7 +725,7 @@ hook.Add("PreDrawHalos", "KyleBuildmodehalos", function()
 		end
 	else	
 		local z = LocalPlayer():GetEyeTrace().Entity
-		if z:Alive() and z:GetRenderMode() != RENDERMODE_TRANSALPHA then
+		if z:IsPlayer() and z:Alive() and z:GetRenderMode() != RENDERMODE_TRANSALPHA then
 			if z:GetNWBool("_Kyle_Buildmode") then
 				table.insert(w, z)
 			else
