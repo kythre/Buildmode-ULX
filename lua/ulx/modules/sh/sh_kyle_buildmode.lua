@@ -362,8 +362,11 @@ if SERVER then
 			local pos = z:GetPos()
 			
 			--if they are in a vehicle try to un noclip their vehicle and kick them out of it if they need to return to spawn
-			if z:InVehicle() and IsValid(z:GetVehicle()) and z:GetVehicle().buildnoclipped then
-				_kyle_Prop_TryUnNoclip(z:GetVehicle())
+			if z:InVehicle() then
+				if IsValid(z:GetVehicle()) and z:GetVehicle().buildnoclipped then
+					_kyle_Prop_TryUnNoclip(z:GetVehicle())
+				end
+				
 				if _Kyle_Buildmode["returntospawn"]=="1" then
 					z:ExitVehicle()
 				end
