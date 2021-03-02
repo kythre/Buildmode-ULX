@@ -499,11 +499,9 @@ if SERVER then
 
 	hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 		--z:GetNWBool("_kyle_died") makes sure that the player is spawning after an actual death and not the ulib respawn function
-		if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and _Kyle_Buildmode["persistpvp"]!="1") or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
+		if ((_Kyle_Buildmode["spawnwithbuildmode"]=="1" and _Kyle_Buildmode["persistpvp"]=="0") or z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
 			_kyle_Buildmode_Enable(z)
 		elseif (not z:GetNWBool("_Kyle_Buildmode")) and z:GetNWBool("_kyle_died") then
-			--and not _Kyle_Buildmode["persistpvp"]=="1"
-			-- removed to allow spawn protection even on pvp persist
 			if tonumber(_Kyle_Buildmode["spawnprotection"])>0 then
 				z:SendLua("GAMEMODE:AddNotify(\"".._Kyle_Buildmode["spawnprotection"].." seconds of Spawn Protection enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 				z.buildmode = true
@@ -520,17 +518,19 @@ if SERVER then
 					end
 					z:SendLua("GAMEMODE:AddNotify(\"Spawn protection ended\",NOTIFY_GENERIC, 5)")
 				end)
-			else
-	
 			end
 		end
 		z:SetNWBool("_kyle_died", false)
 		
-		if z.buildmode == nil then z.buildmode = false end
+		-- set z.buildmode to false if its nil. otherwise keep it at z.buildmode
+		z.buildmode = z.buildmode or false;	
 	end )
 	
-	hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitilaSpawn", function (z) 
+	hook.Add("PlayerInitialSpawn", "kyleBuildmodePlayerInitialSpawn", function (z) 
 		z:SetNWBool("_kyle_died", true)
+		if _Kyle_Buildmode["spawnwithbuildmode"] == "1" then
+			z:SetNWBool("_Kyle_Buildmode", true)
+		end
 	end )
 	
 	hook.Add("PostPlayerDeath", "kyleBuildmodePostPlayerDeath",  function(z)
@@ -545,7 +545,7 @@ if SERVER then
 	
 	hook.Add("PlayerGiveSWEP", "kylebuildmoderestrictswep", function(y, z)
 			if not _kyle_builder_spawn_weapon(y, z) then
-					 --some say that sendlua is lazy and wrong but idc
+			--some say that sendlua is lazy and wrong but idc
 			y:SendLua("GAMEMODE:AddNotify(\"You cannot give yourself this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 			return false
 			end
@@ -553,7 +553,7 @@ if SERVER then
 	
 	hook.Add("PlayerSpawnSWEP", "kylebuildmoderestrictswep", function(y, z)
 		if not _kyle_builder_spawn_weapon(y, z) then
-					--some say that sendlua is lazy and wrong but idc
+			--some say that sendlua is lazy and wrong but idc
 			y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this weapon while in Buildmode.\",NOTIFY_GENERIC, 5)")
 			return false
 			end
@@ -583,15 +583,15 @@ if SERVER then
 	
 	hook.Add("PlayerSpawnSENT", "kylebuildmoderestrictsent", function(y, z)
 			if not _kyle_builder_spawn_entity(y, z) then
-					 --some say that sendlua is lazy and wrong but idc
-			y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
-			return false
+				--some say that sendlua is lazy and wrong but idc
+				y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn this SENT while in Buildmode.\",NOTIFY_GENERIC, 5)")
+				return false
 			end
 	end)
 	
 	hook.Add("PlayerSpawnProp", "kylebuildmoderestrictpropspawn", function(y, z)
 		if _Kyle_Buildmode["pvppropspawn"]=="0" and not y.buildmode and not y:IsAdmin() then
-				--some say that sendlua is lazy and wrong but idc
+			--some say that sendlua is lazy and wrong but idc
 			y:SendLua("GAMEMODE:AddNotify(\"You cannot spawn props while in PVP.\",NOTIFY_GENERIC, 5)")
 			return false
 		end
