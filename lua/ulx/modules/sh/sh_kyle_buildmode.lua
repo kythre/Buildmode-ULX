@@ -331,8 +331,12 @@ if SERVER then
 			end
 		end
 	
+		if _Kyle_Buildmode["npcignore"]=="1" then
+			z:SetNoTarget(true)
+		end
+	
 		--some say that sendlua is lazy and wrong but idc
-			z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
+		z:SendLua("GAMEMODE:AddNotify(\"Buildmode enabled. Type !pvp to disable\",NOTIFY_GENERIC, 5)")
 		
 		--second buildmode variable for halos and status text on hover
 		z:SetNWBool("_Kyle_Buildmode", true)
@@ -348,6 +352,8 @@ if SERVER then
 		if timer.Exists(timername) then
 			timer.Destroy(timername)
 		end
+	
+		z:SetNoTarget(false)
 	
 		z.buildmode = false
 		
@@ -391,6 +397,16 @@ if SERVER then
 		
 		hook.Run ("OnPlayerSwitchModePVPBUILD", z, false)
 	end
+
+
+	hook.Add("PlayerSpawnProp", "KylebuildmodePropSpawnBlock", function(y, z)
+		local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+	
+		if _Kyle_Buildmode["anitpropspawn"] == "1" and (not y.buildmode) and (not adminbypass) then
+			y:SendLua("GAMEMODE:AddNotify(\"You can only spawn props in Buildmode\",NOTIFY_ERROR, 5)")
+			return false
+		end
+	end)
 
 	hook.Add("PlayerSpawnedProp", "KylebuildmodePropKill", function(x, y, z)
 		if not CPPI then 
@@ -495,7 +511,7 @@ if SERVER then
 		elseif _Kyle_Buildmode["allownoclip"]=="1" then 
 			y:SendLua("GAMEMODE:AddNotify(\"You do not have permission to use noclip in Buildmode\",NOTIFY_ERROR, 5)")
 		end
-	end )
+	end, HOOK_HIGH )
 
 	hook.Add("PlayerSpawn", "kyleBuildmodePlayerSpawn",  function(z)
 		--z:GetNWBool("_kyle_died") makes sure that the player is spawning after an actual death and not the ulib respawn function
@@ -645,6 +661,14 @@ if SERVER then
 			if z:GetInflictor().Owner and z:GetInflictor().Owner.buildmode then 
 				if canDamangeNPC(y) then return end
 				return true
+			end
+		end
+		
+		if y:IsPlayer() then
+			local adminbypass = y:IsAdmin() and _Kyle_Buildmode["adminsbypassrestrictions"]=="1"
+
+			if (not adminbypass and (y:Health() > y:GetMaxHealth())) then
+				z:AddDamage(2*(y:Health()-y:GetMaxHealth()))
 			end
 		end
 	end, HOOK_HIGH)

@@ -24,7 +24,8 @@ local panels = {
 			["restrictvehicleentry"] = 				{0, "Restrict Vehicle Entry with 'Builder Vehicles'"},
 			["pvppropspawn"] = 						{0, "Allow Prop Spawn in PVP"},
 			["allownoclip"] =			 			{0, "Allow Noclip in Buildmode"},
-			["allownpcdamage"] = 						{0, "Allow damaging NPCs while in Buildmode"},
+			["allownpcdamage"] = 					{0, "Allow damaging NPCs while in Buildmode"},
+			["npcignore"] = 						{0, "NPCs ignore Builders"},
 			["restrictwantipropkilleapons"] = 		{0, "Prevent Builders from Propkilling"},
 			["highlightbuilders"] = 				{0, "Highlight Builders"},
 			["highlightpvpers"] = 					{0, "Highlight PVPers"},
@@ -42,8 +43,10 @@ local panels = {
 		panelItems = {
 			["spawnprotection"] = 					{1, "Amount of seconds to enable Buildmode temporarily on spawn"},
 			["adminsbypassrestrictions"] = 			{0, "Admins Bypass Restrictions"},
+			["anitpropspawn"] = 					{0, "Prevent PVPers from Spawning Props"},
 			["antipropkillpvper"] = 				{0, "Prevent PVPers from Propkilling"},
-			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"}
+			["antipropkill"] = 						{0, "Prevent Builders from Propkilling"},
+			["antiballmunch"] = 					{0, "No more ball munching"}
 		}
 	},
 	{ -- panel_advanced
